@@ -802,21 +802,24 @@
                 <!-- Tab 4: Akun & Cloud Sync -->
                 <div id="tab-content-cloud" class="hidden flex flex-col gap-3 text-xs">
                     <div class="p-3 bg-purple-50 rounded-2xl border border-purple-200 text-purple-900">
-                        <strong class="block font-bold text-sm mb-1" data-i18n="cloudTitle">☁️ Sinkronisasi Multi-Perangkat</strong>
+                        <strong class="block font-bold text-sm mb-1" data-i18n="cloudTitle">👤 Akun & Penyimpanan Progres</strong>
                         <p class="text-xs text-purple-700" data-i18n="cloudDesc">
-                            Simpan skor dan pencapaianmu di cloud (didukung Supabase Auth & Cloud Database). Tetap berfungsi penuh dalam mode offline/tamu tanpa akun.
+                            Daftar atau masuk untuk mengamankan data progres, skor WPM, dan lencana Anda. Bekerja langsung secara instan!
                         </p>
                     </div>
 
+                    <!-- Kotak Pesan Status / Alert -->
+                    <div id="account-msg-box" class="hidden text-center"></div>
+
                     <div id="supabase-auth-form" class="flex flex-col gap-2">
-                        <input type="email" id="cloud-email" placeholder="Email Anda" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
-                        <input type="password" id="cloud-password" placeholder="Kata Sandi (minimal 6 karakter)" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
+                        <input type="text" id="cloud-email" placeholder="Email atau Nama Pengguna" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
+                        <input type="password" id="cloud-password" placeholder="Kata Sandi (minimal 4 karakter)" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
                         
                         <div class="flex gap-2 mt-1">
-                            <button onclick="cloudSignIn()" class="btn-3d flex-1 py-2 bg-purple-600 text-white font-bold rounded-xl" data-i18n="btnSignIn">
+                            <button onclick="accountSignIn()" class="btn-3d flex-1 py-2 bg-purple-600 text-white font-bold rounded-xl" data-i18n="btnSignIn">
                                 🔑 Masuk (Sign In)
                             </button>
-                            <button onclick="cloudSignUp()" class="btn-3d flex-1 py-2 bg-stone-100 text-stone-800 font-bold rounded-xl border border-stone-300" data-i18n="btnSignUp">
+                            <button onclick="accountSignUp()" class="btn-3d flex-1 py-2 bg-stone-100 text-stone-800 font-bold rounded-xl border border-stone-300" data-i18n="btnSignUp">
                                 📝 Daftar Baru
                             </button>
                         </div>
@@ -824,13 +827,21 @@
 
                     <div id="cloud-user-logged-in" class="hidden p-3 bg-emerald-50 rounded-xl border border-emerald-300 flex justify-between items-center">
                         <div>
-                            <span class="text-emerald-800 font-bold block" id="cloud-logged-email">user@email.com</span>
-                            <span class="text-[10px] text-emerald-600">Akun terhubung ke Cloud Supabase</span>
+                            <span class="text-emerald-800 font-bold block text-sm" id="cloud-logged-email">user@email.com</span>
+                            <span class="text-[10px] text-emerald-600 font-bold" id="cloud-logged-type">👤 Akun Aktif (Lokal)</span>
                         </div>
-                        <button onclick="cloudSignOut()" class="px-2.5 py-1 bg-white text-rose-600 font-bold rounded-lg border border-rose-200 text-xs">
+                        <button onclick="accountSignOut()" class="px-2.5 py-1 bg-white hover:bg-rose-50 text-rose-600 font-bold rounded-lg border border-rose-200 text-xs">
                             Keluar
                         </button>
                     </div>
+
+                    <!-- Catatan Opsional Supabase -->
+                    <details class="text-[11px] text-stone-500 bg-stone-50 p-2.5 rounded-xl border border-stone-200 mt-1">
+                        <summary class="font-bold cursor-pointer text-stone-600">ℹ️ Ingin Sinkronisasi Cloud Antar-Perangkat? (Opsional)</summary>
+                        <p class="mt-1 leading-relaxed">
+                            Secara default, akun dan progres Anda sudah otomatis tersimpan aman di browser ini. Jika ingin sinkronisasi multi-perangkat via Supabase, cukup tambahkan <code class="bg-stone-200 px-1 py-0.5 rounded">SUPABASE_URL</code> dan <code class="bg-stone-200 px-1 py-0.5 rounded">SUPABASE_ANON_KEY</code> di Vercel.
+                        </p>
+                    </details>
                 </div>
 
             </div>
@@ -1325,10 +1336,11 @@
                 const data = await res.json();
                 if (data.success && data.supabaseConfigured && window.supabase) {
                     supabaseClient = window.supabase.createClient(data.supabaseUrl, data.supabaseAnonKey);
-                    updateCloudUIStatus();
                 }
             } catch (e) {
                 console.log("Cloud config fallback to local storage:", e.message);
+            } finally {
+                updateCloudUIStatus();
             }
         }
 
@@ -1727,63 +1739,191 @@
             reader.readAsText(file);
         }
 
-        // --- 10. CLOUD AUTH (SUPABASE) ---
+        // --- 10. SISTEM AKUN & SINKRONISASI (LOKAL & CLOUD) ---
+        function showAccountAlert(msg, type = 'rose') {
+            const el = document.getElementById('account-msg-box');
+            if (!el) return;
+            el.innerHTML = msg;
+            el.className = `p-2.5 rounded-xl border text-xs font-bold ${
+                type === 'emerald' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-rose-50 text-rose-800 border-rose-300'
+            }`;
+            el.classList.remove('hidden');
+        }
+
+        function getStoredAccounts() {
+            try {
+                return JSON.parse(localStorage.getItem('typepaws_accounts') || '{}');
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveStoredAccounts(accs) {
+            localStorage.setItem('typepaws_accounts', JSON.stringify(accs));
+        }
+
         async function updateCloudUIStatus() {
-            if (!supabaseClient) return;
-            const { data: { session } } = await supabaseClient.auth.getSession();
             const form = document.getElementById('supabase-auth-form');
             const logged = document.getElementById('cloud-user-logged-in');
             const badge = document.getElementById('profile-sync-status-badge');
+            const loggedEmail = document.getElementById('cloud-logged-email');
+            const loggedType = document.getElementById('cloud-logged-type');
 
-            if (session) {
-                form.classList.add('hidden');
-                logged.classList.remove('hidden');
-                document.getElementById('cloud-logged-email').innerText = session.user.email;
-                badge.innerText = "☁️ Terhubung ke Cloud";
-                badge.className = "text-[10px] text-purple-700 font-bold bg-purple-100 px-2 py-0.5 rounded-full border border-purple-300";
-            } else {
-                form.classList.remove('hidden');
-                logged.classList.add('hidden');
-                badge.innerText = "📱 Mode Tamu / Lokal";
-                badge.className = "text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200";
+            // 1. Cek jika sesi Supabase aktif
+            if (supabaseClient) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    form.classList.add('hidden');
+                    logged.classList.remove('hidden');
+                    loggedEmail.innerText = session.user.email;
+                    if (loggedType) loggedType.innerText = "☁️ Akun Terhubung ke Cloud Supabase";
+                    badge.innerText = "☁️ Terhubung ke Cloud";
+                    badge.className = "text-[10px] text-purple-700 font-bold bg-purple-100 px-2 py-0.5 rounded-full border border-purple-300";
+                    return;
+                }
             }
+
+            // 2. Cek jika sesi Akun Lokal aktif
+            const currentSession = localStorage.getItem('typepaws_session');
+            if (currentSession) {
+                const accounts = getStoredAccounts();
+                const acc = accounts[currentSession.toLowerCase()];
+                if (acc) {
+                    form.classList.add('hidden');
+                    logged.classList.remove('hidden');
+                    loggedEmail.innerText = acc.email;
+                    if (loggedType) loggedType.innerText = "👤 Akun Aktif (Lokal)";
+                    badge.innerText = "👤 Akun Aktif (Lokal)";
+                    badge.className = "text-[10px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300";
+                    return;
+                }
+            }
+
+            // 3. Mode Tamu
+            form.classList.remove('hidden');
+            logged.classList.add('hidden');
+            badge.innerText = "📱 Mode Tamu / Lokal";
+            badge.className = "text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200";
         }
 
-        async function cloudSignUp() {
-            if (!supabaseClient) {
-                alert("Supabase belum dikonfigurasi di file .env server. Mode tamu lokal tetap aktif.");
+        async function accountSignUp() {
+            const emailInput = document.getElementById('cloud-email');
+            const passInput = document.getElementById('cloud-password');
+            const email = (emailInput.value || '').trim();
+            const password = (passInput.value || '').trim();
+
+            if (!email || !password) {
+                showAccountAlert("Harap isi Email/Username dan Kata Sandi.", 'rose');
                 return;
             }
-            const email = document.getElementById('cloud-email').value;
-            const password = document.getElementById('cloud-password').value;
-            const { error } = await supabaseClient.auth.signUp({ email, password });
-            if (error) alert("Pendaftaran gagal: " + error.message);
-            else {
-                alert("Pendaftaran berhasil! Cek email konfirmasi Anda.");
-                updateCloudUIStatus();
-            }
-        }
 
-        async function cloudSignIn() {
-            if (!supabaseClient) {
-                alert("Supabase belum dikonfigurasi di file .env server. Mode tamu lokal tetap aktif.");
+            if (password.length < 4) {
+                showAccountAlert("Kata sandi minimal 4 karakter.", 'rose');
                 return;
             }
-            const email = document.getElementById('cloud-email').value;
-            const password = document.getElementById('cloud-password').value;
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) alert("Gagal masuk: " + error.message);
-            else {
-                alert("Berhasil masuk ke Cloud Supabase!");
-                updateCloudUIStatus();
-            }
-        }
 
-        async function cloudSignOut() {
-            if (!supabaseClient) return;
-            await supabaseClient.auth.signOut();
+            // Jika Supabase aktif, daftarkan ke Supabase
+            if (supabaseClient) {
+                const { error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) {
+                    showAccountAlert("Pendaftaran Supabase gagal: " + error.message, 'rose');
+                    return;
+                }
+                showAccountAlert("🎉 Pendaftaran berhasil! Silakan cek email konfirmasi Anda.", 'emerald');
+                updateCloudUIStatus();
+                return;
+            }
+
+            // Fallback Akun Lokal (Bekerja langsung tanpa perlu setup server pihak ketiga)
+            const accounts = getStoredAccounts();
+            const key = email.toLowerCase();
+
+            if (accounts[key]) {
+                showAccountAlert("Akun dengan email/nama ini sudah terdaftar. Silakan klik Masuk (Sign In).", 'rose');
+                return;
+            }
+
+            // Simpan akun baru
+            const nickname = email.includes('@') ? email.split('@')[0] : email;
+            accounts[key] = {
+                email: email,
+                password: password,
+                profile: JSON.parse(JSON.stringify(state.profile)),
+                createdAt: Date.now()
+            };
+            accounts[key].profile.name = nickname;
+            state.profile.name = nickname;
+
+            saveStoredAccounts(accounts);
+            localStorage.setItem('typepaws_session', key);
+            saveProfile();
+
+            showAccountAlert("🎉 Akun berhasil didaftarkan dan Anda sudah masuk!", 'emerald');
             updateCloudUIStatus();
+            updateProfileUI();
+            playSound('win');
         }
+
+        async function accountSignIn() {
+            const emailInput = document.getElementById('cloud-email');
+            const passInput = document.getElementById('cloud-password');
+            const email = (emailInput.value || '').trim();
+            const password = (passInput.value || '').trim();
+
+            if (!email || !password) {
+                showAccountAlert("Harap isi Email/Username dan Kata Sandi.", 'rose');
+                return;
+            }
+
+            // Jika Supabase aktif, login via Supabase
+            if (supabaseClient) {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    showAccountAlert("Gagal masuk Supabase: " + error.message, 'rose');
+                    return;
+                }
+                showAccountAlert("✅ Berhasil masuk ke Cloud Supabase!", 'emerald');
+                updateCloudUIStatus();
+                return;
+            }
+
+            // Login Akun Lokal
+            const accounts = getStoredAccounts();
+            const key = email.toLowerCase();
+            const acc = accounts[key];
+
+            if (!acc || acc.password !== password) {
+                showAccountAlert("Email/Username atau kata sandi tidak cocok. Silakan periksa kembali.", 'rose');
+                return;
+            }
+
+            // Pulihkan profil akun tersebut
+            if (acc.profile) {
+                state.profile = Object.assign(state.profile, acc.profile);
+                saveProfile();
+            }
+
+            localStorage.setItem('typepaws_session', key);
+            showAccountAlert(`✅ Berhasil masuk! Selamat datang kembali, ${acc.profile?.name || email}!`, 'emerald');
+            updateCloudUIStatus();
+            updateHomeUI();
+            playSound('key');
+        }
+
+        async function accountSignOut() {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
+            localStorage.removeItem('typepaws_session');
+            showAccountAlert("Berhasil keluar dari akun.", 'emerald');
+            updateCloudUIStatus();
+            playSound('key');
+        }
+
+        // Alias untuk kompatibilitas fungsi lama
+        const cloudSignUp = accountSignUp;
+        const cloudSignIn = accountSignIn;
+        const cloudSignOut = accountSignOut;
 
         // --- 11. FITUR BALAPAN ONLINE (MULTIPLAYER RACE) ---
         function openRaceLobby() {
