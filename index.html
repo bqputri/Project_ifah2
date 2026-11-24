@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TypePaws - Latihan Mengetik Cepat & Lucu</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka (Lucu/Bulat) & JetBrains Mono (Untuk Teks Ketikan) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tone.js untuk Efek Suara Ketikan -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Canvas Confetti untuk Perayaan -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FFF9EB;
+            background-image: radial-gradient(#FDE68A 2px, transparent 2px);
+            background-size: 28px 28px;
+            color: #4A3B32;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .font-mono-typing {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom Animations untuk Maskot & UI */
+        @keyframes bounce-cute {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        @keyframes shake-oops {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px) rotate(-5deg); }
+            50% { transform: translateX(8px) rotate(5deg); }
+            75% { transform: translateX(-8px) rotate(-3deg); }
+        }
+
+        @keyframes pulse-fire {
+            0%, 100% { box-shadow: 0 0 15px rgba(251, 146, 60, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); }
+        }
+
+        .animate-bounce-cute {
+            animation: bounce-cute 0.4s ease-out;
+        }
+
+        .animate-shake-oops {
+            animation: shake-oops 0.35s ease-in-out;
+        }
+
+        .on-fire-mode {
+            animation: pulse-fire 1s infinite;
+            border-color: #F97316 !important;
+        }
+
+        /* Gaya Tombol 3D Lucu */
+        .btn-3d {
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        /* Kursor ketik berkedip */
+        .cursor-blink {
+            border-bottom: 3px solid #F43F5E;
+            background-color: #FFE4E6;
+            border-radius: 4px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { border-color: #F43F5E; }
+            50% { border-color: transparent; }
+        }
+
+        /* Sembunyikan scrollbar namun tetap bisa discroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-pink-200">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="w-full max-w-4xl mx-auto p-3 sm:p-4 flex flex-wrap items-center justify-between gap-2">
+        <!-- Logo -->
+        <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+            <div class="w-10 h-10 bg-pink-400 rounded-2xl flex items-center justify-center text-white text-2xl shadow-md border-2 border-pink-500">
+                🐾
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-pink-600 tracking-wide leading-none">TypePaws</h1>
+                <span class="text-xs text-amber-700 font-medium">Ketik Cepat & Seru!</span>
+            </div>
+        </div>
+
+        <!-- Kontrol Kanan: Tombol AI Cepat, Switch Mode Perangkat & Suara -->
+        <div class="flex items-center gap-2">
+            <!-- Tombol AI Shortcut di Header -->
+            <button onclick="openAiModal()" class="btn-3d px-3 py-1.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow border border-purple-600 transition" title="Buat Latihan AI">
+                ✨ <span class="hidden sm:inline">Latihan AI</span>
+            </button>
+
+            <!-- Tombol Switch Mode HP / Keyboard -->
+            <div class="bg-white p-1 rounded-2xl border-2 border-amber-200 shadow-sm flex items-center">
+                <button id="btn-device-hp" onclick="setDeviceMode('hp')" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all">
+                    📱 <span>Mode HP</span>
+                </button>
+                <button id="btn-device-kb" onclick="setDeviceMode('kb')" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all">
+                    ⌨️ <span>Keyboard</span>
+                </button>
+            </div>
+
+            <!-- Tombol Suara -->
+            <button id="btn-sound" onclick="toggleSound()" class="w-10 h-10 bg-white rounded-2xl border-2 border-amber-200 flex items-center justify-center text-lg shadow-sm hover:bg-amber-50 transition" title="Suara Efek">
+                🔊
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="w-full max-w-4xl mx-auto px-3 sm:px-4 flex-grow flex flex-col justify-center my-2">
+
+        <!-- ========================================== -->
+        <!-- 1. LAYAR MENU UTAMA (HOME SCREEN)          -->
+        <!-- ========================================== -->
+        <section id="screen-home" class="bg-white/90 backdrop-blur-sm rounded-3xl p-5 sm:p-8 border-4 border-amber-200 shadow-xl text-center transition-all">
+            <!-- Maskot Sambutan -->
+            <div class="mb-4 flex flex-col items-center">
+                <div id="home-mascot" class="w-24 h-24 sm:w-28 sm:h-28 bg-amber-100 rounded-full border-4 border-amber-300 flex items-center justify-center text-6xl shadow-inner mb-2 animate-bounce-cute">
+                    🐱
+                </div>
+                <div class="bg-pink-100 text-pink-700 px-4 py-1.5 rounded-full text-sm font-semibold border border-pink-200 inline-block">
+                    Halo! Aku Mochi! Pilih mode latihanmu yuk! ✨
+                </div>
+            </div>
+
+            <!-- Info Mode Perangkat Aktif -->
+            <p id="device-hint-text" class="text-sm text-stone-500 mb-5 max-w-md mx-auto">
+                Kamu sedang menggunakan <strong class="text-pink-600">Mode Keyboard</strong>. Gunakan 10 jarimu untuk mengetik secepat kilat!
+            </p>
+
+            <!-- FITUR UTAMA BARU: KARTU PROMINEN FITUR AI GEMINI -->
+            <div onclick="openAiModal()" class="btn-3d cursor-pointer bg-gradient-to-r from-purple-100 via-pink-100 to-amber-100 hover:from-purple-200 hover:to-pink-200 border-4 border-purple-300 rounded-3xl p-4 sm:p-5 text-left flex flex-col sm:flex-row items-center justify-between gap-4 max-w-2xl mx-auto mb-5 group transition-all">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-13 h-13 sm:w-14 sm:h-14 p-2.5 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-2xl flex items-center justify-center text-3xl shadow-md border-2 border-purple-600 group-hover:scale-110 transition-transform">
+                        🤖
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-purple-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Fitur AI Baru</span>
+                            <span class="text-xs text-purple-700 font-semibold">Gemini API Powered</span>
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-bold text-purple-900 leading-tight">Buat Teks Latihan Baru dengan AI</h2>
+                        <p class="text-xs sm:text-sm text-purple-700 mt-0.5">Ketik topik apa saja (cerita lucu, motivasi, sains) lalu AI buatkan kalimatnya!</p>
+                    </div>
+                </div>
+                <button class="btn-3d w-full sm:w-auto whitespace-nowrap px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow border border-purple-700 group-hover:brightness-105 transition">
+                    ✨ Buat dengan AI ➔
+                </button>
+            </div>
+
+            <!-- Pilihan 2 Mode Permainan Utama -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-6">
+                <!-- Kartu Mode Level / Petualangan -->
+                <div onclick="openLevelSelect()" class="btn-3d cursor-pointer bg-gradient-to-br from-sky-100 to-blue-100 hover:from-sky-200 hover:to-blue-200 border-4 border-sky-300 rounded-3xl p-5 text-left flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-4xl group-hover:scale-110 transition-transform">🗺️</span>
+                            <span class="bg-sky-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">Bertahap</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-sky-900 mb-1">Mode Petualangan</h2>
+                        <p class="text-xs sm:text-sm text-sky-700">Mulai dari level sangat mudah hingga tingkat master yang menantang!</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-sky-200/80 flex justify-between items-center text-xs font-bold text-sky-800">
+                        <span id="home-progress-text">Progres: Level 1 / 10</span>
+                        <span>Mainkan ➔</span>
+                    </div>
+                </div>
+
+                <!-- Kartu Mode Tantangan Waktu (Time Attack) -->
+                <div onclick="openTimeSetup()" class="btn-3d cursor-pointer bg-gradient-to-br from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 border-4 border-orange-300 rounded-3xl p-5 text-left flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-4xl group-hover:scale-110 transition-transform">⏱️</span>
+                            <span class="bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">Skor Tinggi</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-orange-900 mb-1">Tantangan Waktu</h2>
+                        <p class="text-xs sm:text-sm text-orange-800">Berpacu dengan waktu! Semakin banyak kata diketik, semakin tinggi skormu!</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-orange-200/80 flex justify-between items-center text-xs font-bold text-orange-900">
+                        <span id="home-highscore-text">Rekor: 0 Kata</span>
+                        <span>Mulai ➔</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pilihan Maskot Lucu -->
+            <div class="bg-amber-50/80 rounded-2xl p-3 border-2 border-amber-200/70 max-w-md mx-auto">
+                <span class="text-xs font-bold text-amber-800 block mb-2">Pilih Teman Maskotmu:</span>
+                <div class="flex justify-center gap-3">
+                    <button onclick="selectMascot('🐱', 'Mochi')" class="mascot-btn w-11 h-11 rounded-xl bg-white border-2 border-pink-400 text-2xl shadow-sm hover:scale-110 transition" data-emoji="🐱">🐱</button>
+                    <button onclick="selectMascot('🐰', 'Boba')" class="mascot-btn w-11 h-11 rounded-xl bg-white border-2 border-amber-200 text-2xl shadow-sm hover:scale-110 transition" data-emoji="🐰">🐰</button>
+                    <button onclick="selectMascot('🐶', 'Pudding')" class="mascot-btn w-11 h-11 rounded-xl bg-white border-2 border-amber-200 text-2xl shadow-sm hover:scale-110 transition" data-emoji="🐶">🐶</button>
+                    <button onclick="selectMascot('🐼', 'Oreo')" class="mascot-btn w-11 h-11 rounded-xl bg-white border-2 border-amber-200 text-2xl shadow-sm hover:scale-110 transition" data-emoji="🐼">🐼</button>
+                    <button onclick="selectMascot('🦊', 'Kiko')" class="mascot-btn w-11 h-11 rounded-xl bg-white border-2 border-amber-200 text-2xl shadow-sm hover:scale-110 transition" data-emoji="🦊">🦊</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MODAL / POPUP GENERATOR TEKS LATIHAN AI    -->
+        <!-- ========================================== -->
+        <div id="modal-ai" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-sm transition-all">
+            <div class="bg-white rounded-3xl border-4 border-purple-300 shadow-2xl max-w-lg w-full p-5 sm:p-7 relative max-h-[92vh] overflow-y-auto no-scrollbar">
+                
+                <!-- Tombol Tutup Modal -->
+                <button onclick="closeAiModal()" class="absolute top-4 right-4 w-9 h-9 bg-stone-100 hover:bg-rose-100 hover:text-rose-600 rounded-full flex items-center justify-center text-stone-500 font-bold transition">
+                    ✖
+                </button>
+
+                <!-- Header Modal -->
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-purple-100 border-2 border-purple-300 rounded-2xl flex items-center justify-center text-2xl">
+                        ✨
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-purple-900 leading-tight">Buat Latihan AI</h2>
+                        <span class="text-xs text-purple-600 font-medium">Didukung Google Gemini API</span>
+                    </div>
+                </div>
+
+                <!-- Input Topik -->
+                <div class="mb-4">
+                    <label for="ai-topic-input" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                        Topik atau Ide Latihan:
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="ai-topic-input" 
+                            placeholder="Contoh: Cerita kucing lucu yang jago kungfu..." 
+                            class="w-full px-4 py-3 rounded-2xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-stone-800 text-sm font-medium bg-purple-50/40 transition">
+                    </div>
+                    
+                    <!-- Chips Rekomendasi Topik Cepat -->
+                    <div class="mt-2.5">
+                        <span class="text-[11px] font-bold text-stone-400 block mb-1.5">Pilihan Cepat:</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="setAiTopicQuick('🐱 Cerita kucing oranye yang nakal dan suka makan sate')" class="text-xs px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl border border-amber-200 transition">
+                                🐱 Kucing Lucu
+                            </button>
+                            <button type="button" onclick="setAiTopicQuick('🌟 Kata-kata motivasi untuk semangat belajar dan meraih cita-cita')" class="text-xs px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-800 rounded-xl border border-sky-200 transition">
+                                🌟 Motivasi
+                            </button>
+                            <button type="button" onclick="setAiTopicQuick('🚀 Petualangan astronot cilik mendarat di planet permen warna-warni')" class="text-xs px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-xl border border-purple-200 transition">
+                                🚀 Petualangan
+                            </button>
+                            <button type="button" onclick="setAiTopicQuick('🍰 Suasana hangat di toko kue kelinci dengan aroma roti manis')" class="text-xs px-2.5 py-1 bg-pink-50 hover:bg-pink-100 text-pink-800 rounded-xl border border-pink-200 transition">
+                                🍰 Toko Kue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pilihan Tingkat Kesulitan / Panjang -->
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                        Panjang Kalimat:
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setAiDifficulty('easy')" id="btn-diff-easy" class="diff-btn btn-3d py-2 rounded-xl text-xs font-bold border-2 border-stone-200 bg-stone-50 text-stone-700">
+                            🌱 Pendek
+                        </button>
+                        <button type="button" onclick="setAiDifficulty('medium')" id="btn-diff-medium" class="diff-btn btn-3d py-2 rounded-xl text-xs font-bold border-2 border-purple-500 bg-purple-500 text-white">
+                            ⚡ Sedang
+                        </button>
+                        <button type="button" onclick="setAiDifficulty('hard')" id="btn-diff-hard" class="diff-btn btn-3d py-2 rounded-xl text-xs font-bold border-2 border-stone-200 bg-stone-50 text-stone-700">
+                            🔥 Panjang
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tombol Submit Generate -->
+                <button id="btn-ai-generate" onclick="generateAiPracticeText()" class="btn-3d w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-bold text-sm sm:text-base rounded-2xl shadow-lg border-2 border-purple-700 flex items-center justify-center gap-2">
+                    <span id="ai-btn-icon">✨</span>
+                    <span id="ai-btn-text">Buat Teks Latihan Baru dengan AI</span>
+                </button>
+
+                <!-- Status Loading Animasi -->
+                <div id="ai-loading" class="hidden mt-4 p-4 bg-purple-50 rounded-2xl border-2 border-purple-200 text-center">
+                    <div class="text-3xl mb-1 animate-bounce">🐾</div>
+                    <p class="text-xs font-bold text-purple-800">Mochi sedang berbisik dengan Gemini AI...</p>
+                    <p class="text-[11px] text-purple-600">Menyusun kalimat latihan yang asyik untukmu!</p>
+                </div>
+
+                <!-- Alert Error -->
+                <div id="ai-error-box" class="hidden mt-4 p-3 bg-rose-50 border-2 border-rose-300 rounded-2xl text-left">
+                    <div class="flex items-start gap-2">
+                        <span class="text-rose-600 text-base">⚠️</span>
+                        <div class="text-xs text-rose-800 leading-snug">
+                            <strong class="block font-bold">Gagal Membuat Teks:</strong>
+                            <span id="ai-error-msg">Terjadi kesalahan pada server.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Box Preview Teks Hasil AI -->
+                <div id="ai-result-box" class="hidden mt-4 p-4 bg-gradient-to-br from-amber-50 to-pink-50 rounded-2xl border-2 border-amber-300 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-amber-800 flex items-center gap-1">
+                            🎯 Hasil Kalimat Latihan:
+                        </span>
+                        <span id="ai-text-stats" class="text-[10px] font-bold bg-white px-2 py-0.5 rounded-full text-stone-600 border border-amber-200">
+                            0 kata • 0 huruf
+                        </span>
+                    </div>
+
+                    <div id="ai-generated-display" class="font-mono-typing text-sm sm:text-base text-stone-800 bg-white/90 p-3 rounded-xl border border-amber-200 leading-relaxed max-h-36 overflow-y-auto">
+                        <!-- Teks yang dibuat Gemini akan muncul di sini -->
+                    </div>
+
+                    <!-- Tombol Mulai Ketik dari Modal -->
+                    <div class="mt-3 flex gap-2">
+                        <button onclick="startAiPracticeGame()" class="btn-3d flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-xs sm:text-sm rounded-xl border border-emerald-600">
+                            🐾 Mulai Ketik Sekarang!
+                        </button>
+                        <button onclick="generateAiPracticeText()" class="btn-3d px-3 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs rounded-xl border border-amber-300" title="Cari Kalimat Lain">
+                            🔄 Ganti
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 2. LAYAR PILIH LEVEL (ADVENTURE MODE)      -->
+        <!-- ========================================== -->
+        <section id="screen-levels" class="hidden bg-white/95 rounded-3xl p-5 sm:p-7 border-4 border-sky-200 shadow-xl">
+            <div class="flex items-center justify-between mb-5">
+                <button onclick="goHome()" class="btn-3d bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-4 py-2 rounded-2xl text-sm border-2 border-stone-300">
+                    ⬅ Kembali
+                </button>
+                <h2 class="text-xl sm:text-2xl font-bold text-sky-800">🗺️ Peta Petualangan</h2>
+                <div class="w-20"></div> <!-- Spacer -->
+            </div>
+
+            <p class="text-center text-xs sm:text-sm text-stone-500 mb-5">
+                Selesaikan tiap level untuk membuka tantangan berikutnya. Level awal sangat mudah!
+            </p>
+
+            <!-- Grid Level -->
+            <div id="levels-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto p-1 no-scrollbar">
+                <!-- Diisi oleh JavaScript -->
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 3. LAYAR PENGATURAN TIME ATTACK            -->
+        <!-- ========================================== -->
+        <section id="screen-time-setup" class="hidden bg-white/95 rounded-3xl p-6 sm:p-8 border-4 border-orange-200 shadow-xl text-center max-w-lg mx-auto w-full">
+            <div class="flex justify-start mb-2">
+                <button onclick="goHome()" class="btn-3d bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3 py-1.5 rounded-xl text-xs border-2 border-stone-300">
+                    ⬅ Kembali
+                </button>
+            </div>
+            
+            <div class="text-5xl mb-3">⏱️🔥</div>
+            <h2 class="text-2xl font-bold text-orange-800 mb-2">Mode Tantangan Waktu</h2>
+            <p class="text-sm text-stone-600 mb-6">
+                Ketik kata sebanyak mungkin sebelum waktu habis! Ketik tanpa salah beruntun untuk mengaktifkan <strong class="text-orange-600">Mode On-Fire (2x Skor)</strong>!
+            </p>
+
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">Pilih Durasi Waktu</label>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="selectDuration(15)" class="dur-btn btn-3d py-3 rounded-2xl font-bold border-2 border-orange-200 bg-orange-50 text-orange-800 text-lg" data-sec="15">15 Detik</button>
+                    <button onclick="selectDuration(30)" class="dur-btn btn-3d py-3 rounded-2xl font-bold border-4 border-orange-500 bg-orange-400 text-white text-lg" data-sec="30">30 Detik</button>
+                    <button onclick="selectDuration(60)" class="dur-btn btn-3d py-3 rounded-2xl font-bold border-2 border-orange-200 bg-orange-50 text-orange-800 text-lg" data-sec="60">60 Detik</button>
+                </div>
+            </div>
+
+            <button onclick="startTimeAttack()" class="btn-3d w-full py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold text-lg rounded-2xl shadow-lg border-2 border-orange-600 hover:brightness-105">
+                🚀 Mulai Tantangan Sekarang!
+            </button>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 4. LAYAR PERMAINAN UTAMA (GAMEPLAY SCREEN)  -->
+        <!-- ========================================== -->
+        <section id="screen-game" class="hidden flex flex-col gap-3 w-full">
+            
+            <!-- Bar Status Atas (HUD) -->
+            <div class="bg-white rounded-2xl p-3 border-3 border-amber-200 shadow-md flex flex-wrap items-center justify-between gap-2">
+                <button onclick="quitGame()" class="bg-stone-100 hover:bg-rose-100 hover:text-rose-600 text-stone-600 font-bold px-3 py-1.5 rounded-xl text-xs border border-stone-200 transition">
+                    ✖ Keluar
+                </button>
+
+                <!-- Judul Level / Mode -->
+                <div class="text-center">
+                    <span id="game-mode-badge" class="bg-sky-100 text-sky-800 text-xs font-bold px-3 py-1 rounded-full border border-sky-200">
+                        Level 1: Pemanasan
+                    </span>
+                </div>
+
+                <!-- Statistik Live -->
+                <div class="flex items-center gap-3 text-xs sm:text-sm font-bold">
+                    <div class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl border border-emerald-200">
+                        ⚡ <span id="live-wpm">0</span> WPM
+                    </div>
+                    <div id="hud-timer-box" class="bg-amber-50 text-amber-800 px-2.5 py-1 rounded-xl border border-amber-200">
+                        ⏱️ <span id="live-timer">0s</span>
+                    </div>
+                    <div id="hud-score-box" class="hidden bg-orange-100 text-orange-800 px-2.5 py-1 rounded-xl border border-orange-300">
+                        ⭐ <span id="live-score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Area Maskot & Reaksi Live -->
+            <div class="flex items-center justify-between bg-gradient-to-r from-pink-100/80 via-amber-100/80 to-sky-100/80 rounded-2xl px-4 py-2 border-2 border-white shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div id="game-mascot" class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-full border-2 border-pink-300 flex items-center justify-center text-3xl sm:text-4xl shadow-sm transition-transform">
+                        🐱
+                    </div>
+                    <div>
+                        <div id="mascot-speech" class="text-xs sm:text-sm font-bold text-stone-700">
+                            Ayo ketik huruf yang disorot!
+                        </div>
+                        <!-- Progress Bar Level -->
+                        <div class="w-36 sm:w-56 h-2.5 bg-white/80 rounded-full overflow-hidden mt-1 border border-amber-200">
+                            <div id="game-progress-bar" class="h-full bg-gradient-to-r from-pink-400 to-amber-400 transition-all duration-200" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indikator Combo Streak -->
+                <div id="combo-badge" class="hidden flex-col items-end">
+                    <span class="text-xs font-bold text-orange-600 uppercase">Combo!</span>
+                    <span id="combo-count" class="text-lg sm:text-xl font-black text-rose-500">5x 🔥</span>
+                </div>
+            </div>
+
+            <!-- AREA TEKS KETIKAN (TYPING BOX) -->
+            <div id="typing-card" onclick="focusInput()" class="relative bg-white rounded-3xl p-5 sm:p-8 border-4 border-pink-300 shadow-lg cursor-text transition-all min-h-[150px] sm:min-h-[180px] flex flex-col justify-center items-center">
+                
+                <!-- Petunjuk Klik jika tidak fokus -->
+                <div id="focus-overlay" class="hidden absolute inset-0 bg-white/85 backdrop-blur-[2px] rounded-3xl flex items-center justify-center z-10">
+                    <span class="bg-pink-500 text-white font-bold px-5 py-2.5 rounded-2xl shadow-md animate-bounce">
+                        👆 Ketuk di sini untuk lanjut mengetik!
+                    </span>
+                </div>
+
+                <!-- Tampilan Teks Target -->
+                <div id="target-text-display" class="font-mono-typing text-xl sm:text-3xl leading-relaxed tracking-wide text-center break-words max-w-full select-none">
+                    <!-- Karakter dirender di sini -->
+                </div>
+
+                <!-- Input Tersembunyi (untuk menangkap ketikan Keyboard maupun HP) -->
+                <input type="text" id="hidden-typing-input" class="opacity-0 absolute pointer-events-none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VISUAL KEYBOARD / BANTUAN KHUSUS MODE      -->
+            <!-- ========================================== -->
+            
+            <!-- A. Panduan Keyboard Virtual (Muncul di Mode Keyboard) -->
+            <div id="visual-keyboard-container" class="hidden sm:flex flex-col items-center gap-1.5 bg-stone-200/80 p-3 rounded-2xl border-2 border-stone-300 select-none">
+                <div class="text-[11px] font-bold text-stone-500 mb-0.5">Panduan Tombol (Tekan tombol yang menyala di keyboardmu)</div>
+                <div id="vk-rows" class="flex flex-col gap-1.5 w-full max-w-2xl">
+                    <!-- Baris keyboard dirender via JS -->
+                </div>
+            </div>
+
+            <!-- B. Panel Khusus Mode HP (Tombol Buka Keyboard HP & Tips Jempol) -->
+            <div id="mobile-helper-container" class="hidden flex-col items-center gap-2 bg-sky-50 p-3 rounded-2xl border-2 border-sky-200 text-center">
+                <p class="text-xs text-sky-800 font-medium">
+                    📱 <strong>Mode HP Aktif:</strong> Gunakan kedua jempolmu! Ketuk tombol di bawah jika keyboard HP belum muncul.
+                </p>
+                <button onclick="focusInput()" class="btn-3d bg-sky-500 text-white font-bold text-sm px-5 py-2 rounded-xl border border-sky-600">
+                    ⌨️ Munculkan Keyboard HP
+                </button>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 5. LAYAR HASIL AKHIR (RESULT SCREEN)       -->
+        <!-- ========================================== -->
+        <section id="screen-result" class="hidden bg-white rounded-3xl p-6 sm:p-8 border-4 border-emerald-300 shadow-2xl text-center max-w-lg mx-auto w-full">
+            <div id="result-stars" class="text-4xl sm:text-5xl mb-2 tracking-widest">
+                ⭐⭐⭐
+            </div>
+            <h2 id="result-title" class="text-2xl sm:text-3xl font-bold text-emerald-700 mb-1">Hebat Sekali!</h2>
+            <p id="result-subtitle" class="text-sm text-stone-500 mb-5">Level 1 berhasil diselesaikan dengan mulus!</p>
+
+            <!-- Kartu Statistik -->
+            <div class="grid grid-cols-3 gap-2.5 mb-6">
+                <div class="bg-amber-50 p-3 rounded-2xl border-2 border-amber-200">
+                    <span class="block text-xs text-amber-700 font-bold">Kecepatan</span>
+                    <span id="res-wpm" class="text-xl sm:text-2xl font-black text-amber-900">35</span>
+                    <span class="block text-[10px] text-amber-600">WPM</span>
+                </div>
+                <div class="bg-sky-50 p-3 rounded-2xl border-2 border-sky-200">
+                    <span class="block text-xs text-sky-700 font-bold">Akurasi</span>
+                    <span id="res-acc" class="text-xl sm:text-2xl font-black text-sky-900">98%</span>
+                    <span class="block text-[10px] text-sky-600">Ketepatan</span>
+                </div>
+                <div class="bg-pink-50 p-3 rounded-2xl border-2 border-pink-200">
+                    <span id="res-third-label" class="block text-xs text-pink-700 font-bold">Waktu</span>
+                    <span id="res-third-val" class="text-xl sm:text-2xl font-black text-pink-900">12s</span>
+                    <span id="res-third-sub" class="block text-[10px] text-pink-600">Detik</span>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Hasil -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="retryCurrentGame()" class="btn-3d flex-1 py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-2xl border-2 border-amber-300">
+                    🔄 Ulangi
+                </button>
+                <button id="btn-next-level" onclick="nextLevel()" class="btn-3d flex-1 py-3 bg-gradient-to-r from-emerald-400 to-teal-500 text-white font-bold rounded-2xl border-2 border-emerald-600">
+                    Lanjut Level ➔
+                </button>
+            </div>
+            <p id="enter-hint-text" class="hidden text-xs font-bold text-emerald-600 mt-3 animate-pulse">
+                💡 Tekan tombol [Enter] untuk langsung lanjut!
+            </p>
+            <button onclick="goHome()" class="mt-3 text-xs font-bold text-stone-400 hover:text-stone-600 underline">
+                Kembali ke Menu Utama
+            </button>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center p-3 text-xs text-stone-400 font-medium">
+        Dibuat dengan 💖 untuk melatih kelincahan jari & jempolmu • TypePaws
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- LOGIKA JAVASCRIPT & DATA LEVEL             -->
+    <!-- ========================================== -->
+    <script>
+        // --- 1. DATA LEVEL (DARI SANGAT MUDAH KE SULIT) ---
+        // Dibedakan khusus untuk Mode Keyboard (latihan jari) & Mode HP (kata sehari-hari/jempol)
+        const LEVEL_DATA = {
+            kb: [
+                { id: 1, title: "Level 1: Pemanasan Dasar", desc: "Huruf F dan J (Home Row)", text: "fff jjj ff jj fj jf fff jjj fjf jfj" },
+                { id: 2, title: "Level 2: Kiri & Kanan", desc: "Menambah huruf D dan K", text: "ddd kkk df jk fd kj dfjk kjfd ddd kkk" },
+                { id: 3, title: "Level 3: Empat Jari", desc: "Menambah huruf S dan L", text: "sss lll asdf jkl sada lala fasa kala" },
+                { id: 4, title: "Level 4: Baris Tengah Penuh", desc: "Semua huruf baris tengah", text: "aku suka gula jawa dan rasa kelapa muda" },
+                { id: 5, title: "Level 5: Baris Atas", desc: "Mengenal huruf E, R, U, I", text: "kue kering ibu rasa keju dan susu murni" },
+                { id: 6, title: "Level 6: Kata Sehari-hari", desc: "Kalimat pendek tanpa kapital", text: "kucing lucu itu sedang tidur di atas sofa empuk" },
+                { id: 7, title: "Level 7: Huruf Kapital", desc: "Mulai menggunakan huruf besar", text: "Budi dan Sari pergi ke Taman Safari pada hari Minggu" },
+                { id: 8, title: "Level 8: Tanda Baca", desc: "Titik, koma, dan tanda tanya", text: "Halo, apa kabar? Semoga harimu menyenangkan ya!" },
+                { id: 9, title: "Level 9: Angka & Simbol", desc: "Kombinasi angka di kalimat", text: "Saya membeli 5 roti coklat dan 12 permen seharga 25000 rupiah." },
+                { id: 10, title: "Level 10: Master Ketik!", desc: "Tantangan kecepatan penuh", text: "Kucing oranye melompat lincah melewati 3 pagar kayu sambil mengejar kupu-kupu biru!" }
+            ],
+            hp: [
+                { id: 1, title: "Level 1: Jempol Santai", desc: "Kata 2-3 huruf super mudah", text: "aku dia ini itu dan ada apa iya" },
+                { id: 2, title: "Level 2: Sapaan Cepat", desc: "Kata sapaan sehari-hari", text: "halo pagi siang sore malam apa kabar kamu" },
+                { id: 3, title: "Level 3: Obrolan Chat", desc: "Kalimat pendek tanpa spasi rumit", text: "lagi dimana nih aku sudah sampai di depan" },
+                { id: 4, title: "Level 4: Makanan Enak", desc: "Melatih kelincahan dua jempol", text: "nasi goreng ayam bakar es teh manis dan bakso urat" },
+                { id: 5, title: "Level 5: Kalimat Lengkap", desc: "Kalimat obrolan agak panjang", text: "nanti sore kita jadi main ke rumah nenek kan" },
+                { id: 6, title: "Level 6: Huruf Kapital", desc: "Gunakan tombol Shift di HP", text: "Besok pagi Jakarta cerah sekali untuk jalan santai" },
+                { id: 7, title: "Level 7: Tanda Baca Chat", desc: "Tanda tanya dan seru", text: "Wah, benarkah itu? Keren sekali kamu hari ini!" },
+                { id: 8, title: "Level 8: Jajan & Harga", desc: "Kombinasi huruf dan angka", text: "Tolong belikan 2 kopi susu dan 4 donat coklat ya" },
+                { id: 9, title: "Level 9: Berita Singkat", desc: "Kalimat panjang tanpa typo", text: "Anak kucing yang lucu itu akhirnya ditemukan sedang tertidur pulas di keranjang." },
+                { id: 10, title: "Level 10: Raja Jempol!", desc: "Ujian kecepatan jempol kilat", text: "Selamat! Kamu berhasil mengetik 100% cepat dan akurat menggunakan kedua jempolmu!" }
+            ]
+        };
+
+        // Bank kata acak untuk Mode Time Attack
+        const TIME_ATTACK_WORDS = [
+            "kucing", "lucu", "makan", "ikan", "tidur", "siang", "pagi", "cerah",
+            "bunga", "mawar", "indah", "sekali", "cepat", "kilat", "lompat", "tinggi",
+            "apel", "merah", "manis", "jeruk", "segar", "minum", "air", "putih",
+            "buku", "baca", "tulis", "belajar", "pintar", "hebat", "juara", "satu",
+            "awan", "biru", "langit", "bintang", "bulan", "malam", "mimpi", "indah",
+            "roti", "keju", "coklat", "susu", "hangat", "kue", "bolu", "enak",
+            "main", "game", "seru", "senang", "tertawa", "riang", "gembira", "selalu",
+            "jalan", "santai", "taman", "kota", "sepeda", "mobil", "kereta", "cepat"
+        ];
+
+        // --- 2. STATE APLIKASI ---
+        let state = {
+            deviceMode: 'kb', // 'kb' (keyboard) atau 'hp' (mobile)
+            soundEnabled: true,
+            mascotEmoji: '🐱',
+            mascotName: 'Mochi',
+            unlockedLevel: { kb: 1, hp: 1 },
+            highScoreWords: { kb: 0, hp: 0 },
+            
+            // State Permainan Aktif
+            gameType: 'level', // 'level', 'time', atau 'ai'
+            currentLevelId: 1,
+            timeDuration: 30,
+            
+            // AI Mode State
+            aiTopic: '',
+            aiDifficulty: 'medium',
+            lastAiGeneratedText: '',
+            
+            targetText: "",
+            currentIndex: 0,
+            correctChars: 0,
+            totalKeystrokes: 0,
+            comboStreak: 0,
+            wordsCompleted: 0,
+            score: 0,
+            
+            isPlaying: false,
+            startTime: null,
+            timerInterval: null,
+            timeLeft: 0
+        };
+
+        // --- 3. INISIALISASI AUDIO (TONE.JS) ---
+        let synthPop, synthError, synthWin;
+        function initAudio() {
+            if (synthPop) return;
+            try {
+                synthPop = new Tone.Synth({
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.005, decay: 0.05, sustain: 0, release: 0.05 }
+                }).toDestination();
+                synthPop.volume.value = -8;
+
+                synthError = new Tone.Synth({
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.01, decay: 0.15, sustain: 0, release: 0.1 }
+                }).toDestination();
+                synthError.volume.value = -6;
+
+                synthWin = new Tone.PolySynth(Tone.Synth).toDestination();
+                synthWin.volume.value = -6;
+            } catch (e) {
+                console.warn("Audio belum siap:", e);
+            }
+        }
+
+        function playSound(type) {
+            if (!state.soundEnabled) return;
+            initAudio();
+            if (Tone.context.state !== 'running') Tone.start();
+
+            try {
+                if (type === 'key') {
+                    // Nada naik sedikit sesuai combo agar memuaskan
+                    const pitch = Math.min(600 + (state.comboStreak * 15), 1100);
+                    synthPop.triggerAttackRelease(pitch, "32n");
+                } else if (type === 'error') {
+                    synthError.triggerAttackRelease("F3", "16n");
+                } else if (type === 'win') {
+                    synthWin.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n");
+                }
+            } catch (e) {}
+        }
+
+        // --- 4. DETEKSI PERANGKAT & PENYIMPANAN LOKAL ---
+        window.onload = function() {
+            // Muat progres tersimpan jika ada
+            const saved = localStorage.getItem('typepaws_save');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.unlockedLevel) state.unlockedLevel = parsed.unlockedLevel;
+                    if (parsed.highScoreWords) state.highScoreWords = parsed.highScoreWords;
+                    if (parsed.mascotEmoji) {
+                        state.mascotEmoji = parsed.mascotEmoji;
+                        state.mascotName = parsed.mascotName;
+                    }
+                } catch(e) {}
+            }
+
+            // Deteksi otomatis layar sentuh / HP
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 640;
+            setDeviceMode(isMobile ? 'hp' : 'kb');
+            
+            buildVisualKeyboard();
+            updateHomeUI();
+        };
+
+        function saveProgress() {
+            localStorage.setItem('typepaws_save', JSON.stringify({
+                unlockedLevel: state.unlockedLevel,
+                highScoreWords: state.highScoreWords,
+                mascotEmoji: state.mascotEmoji,
+                mascotName: state.mascotName
+            }));
+        }
+
+        // --- 5. NAVIGASI & PENGATURAN UI ---
+        function showScreen(screenId) {
+            ['screen-home', 'screen-levels', 'screen-time-setup', 'screen-game', 'screen-result'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(screenId);
+            if (target) target.classList.remove('hidden');
+        }
+
+        function goHome() {
+            stopTimer();
+            state.isPlaying = false;
+            updateHomeUI();
+            showScreen('screen-home');
+        }
+
+        function setDeviceMode(mode) {
+            state.deviceMode = mode;
+            const btnHp = document.getElementById('btn-device-hp');
+            const btnKb = document.getElementById('btn-device-kb');
+            const hint = document.getElementById('device-hint-text');
+
+            if (mode === 'hp') {
+                btnHp.className = "px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all bg-sky-500 text-white shadow-sm";
+                btnKb.className = "px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all text-stone-500 hover:bg-stone-100";
+                hint.innerHTML = `Kamu sedang menggunakan <strong class="text-sky-600">Mode HP (Layar Sentuh)</strong>. Latih kecepatan kedua jempolmu!`;
+            } else {
+                btnKb.className = "px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all bg-pink-500 text-white shadow-sm";
+                btnHp.className = "px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all text-stone-500 hover:bg-stone-100";
+                hint.innerHTML = `Kamu sedang menggunakan <strong class="text-pink-600">Mode Keyboard</strong>. Gunakan 10 jarimu untuk mengetik secepat kilat!`;
+            }
+
+            updateHomeUI();
+            // Jika sedang di layar level, render ulang level sesuai perangkat
+            if (!document.getElementById('screen-levels').classList.contains('hidden')) {
+                renderLevelsGrid();
+            }
+        }
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            document.getElementById('btn-sound').innerText = state.soundEnabled ? '🔊' : '🔇';
+        }
+
+        function selectMascot(emoji, name) {
+            state.mascotEmoji = emoji;
+            state.mascotName = name;
+            document.getElementById('home-mascot').innerText = emoji;
+            
+            // Highlight tombol terpilih
+            document.querySelectorAll('.mascot-btn').forEach(btn => {
+                if (btn.dataset.emoji === emoji) {
+                    btn.classList.remove('border-amber-200');
+                    btn.classList.add('border-pink-400', 'bg-pink-50');
+                } else {
+                    btn.classList.add('border-amber-200');
+                    btn.classList.remove('border-pink-400', 'bg-pink-50');
+                }
+            });
+            saveProgress();
+            playSound('key');
+        }
+
+        function updateHomeUI() {
+            const mode = state.deviceMode;
+            document.getElementById('home-mascot').innerText = state.mascotEmoji;
+            document.getElementById('home-progress-text').innerText = `Progres: Level ${state.unlockedLevel[mode]} / 10`;
+            document.getElementById('home-highscore-text').innerText = `Rekor: ${state.highScoreWords[mode]} Kata`;
+        }
+
+        // --- 6. LOGIKA MODE LEVEL (PETUALANGAN) ---
+        function openLevelSelect() {
+            renderLevelsGrid();
+            showScreen('screen-levels');
+        }
+
+        function renderLevelsGrid() {
+            const grid = document.getElementById('levels-grid');
+            grid.innerHTML = '';
+            const mode = state.deviceMode;
+            const levels = LEVEL_DATA[mode];
+            const maxUnlocked = state.unlockedLevel[mode];
+
+            levels.forEach(lvl => {
+                const isUnlocked = lvl.id <= maxUnlocked;
+                const isCompleted = lvl.id < maxUnlocked;
+                
+                const card = document.createElement('div');
+                if (isUnlocked) {
+                    card.className = `btn-3d cursor-pointer rounded-2xl p-3 border-3 flex flex-col justify-between text-center transition ${
+                        isCompleted 
+                        ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
+                        : 'bg-sky-50 border-sky-400 text-sky-900'
+                    }`;
+                    card.onclick = () => startLevel(lvl.id);
+                    card.innerHTML = `
+                        <div class="text-xs font-bold uppercase tracking-wider opacity-70">Level ${lvl.id}</div>
+                        <div class="text-2xl my-1">${isCompleted ? '⭐' : '🎯'}</div>
+                        <div class="text-xs font-bold line-clamp-1">${lvl.title.split(': ')[1]}</div>
+                    `;
+                } else {
+                    card.className = "rounded-2xl p-3 border-2 border-stone-200 bg-stone-100 text-stone-400 flex flex-col justify-between text-center opacity-75 cursor-not-allowed";
+                    card.innerHTML = `
+                        <div class="text-xs font-bold">Level ${lvl.id}</div>
+                        <div class="text-2xl my-1">🔒</div>
+                        <div class="text-[11px]">Terkunci</div>
+                    `;
+                }
+                grid.appendChild(card);
+            });
+        }
+
+        function startLevel(levelId) {
+            state.gameType = 'level';
+            state.currentLevelId = levelId;
+            const lvlObj = LEVEL_DATA[state.deviceMode].find(l => l.id === levelId);
+            
+            state.targetText = lvlObj.text;
+            resetGameSession();
+
+            document.getElementById('game-mode-badge').innerText = `${lvlObj.title} (${state.deviceMode === 'hp' ? 'HP' : 'Keyboard'})`;
+            document.getElementById('hud-score-box').classList.add('hidden');
+            document.getElementById('live-timer').innerText = '0s';
+            
+            prepareGameScreen();
+        }
+
+        // --- 7. LOGIKA MODE TIME ATTACK ---
+        function openTimeSetup() {
+            showScreen('screen-time-setup');
+        }
+
+        function selectDuration(sec) {
+            state.timeDuration = sec;
+            document.querySelectorAll('.dur-btn').forEach(btn => {
+                if (parseInt(btn.dataset.sec) === sec) {
+                    btn.className = "dur-btn btn-3d py-3 rounded-2xl font-bold border-4 border-orange-500 bg-orange-400 text-white text-lg";
+                } else {
+                    btn.className = "dur-btn btn-3d py-3 rounded-2xl font-bold border-2 border-orange-200 bg-orange-50 text-orange-800 text-lg";
+                }
+            });
+            playSound('key');
+        }
+
+        function generateRandomWords(count = 12) {
+            let arr = [];
+            for (let i = 0; i < count; i++) {
+                const rand = TIME_ATTACK_WORDS[Math.floor(Math.random() * TIME_ATTACK_WORDS.length)];
+                arr.push(rand);
+            }
+            return arr.join(" ");
+        }
+
+        function startTimeAttack() {
+            state.gameType = 'time';
+            state.targetText = generateRandomWords(15);
+            resetGameSession();
+            state.timeLeft = state.timeDuration;
+
+            document.getElementById('game-mode-badge').innerText = `⏱️ Time Attack (${state.timeDuration} Detik)`;
+            document.getElementById('hud-score-box').classList.remove('hidden');
+            document.getElementById('live-score').innerText = '0';
+            document.getElementById('live-timer').innerText = `${state.timeLeft}s`;
+
+            prepareGameScreen();
+        }
+
+        // ==========================================
+        // --- FITUR BARU: GENERATOR TEKS AI GEMINI ---
+        // ==========================================
+        function openAiModal() {
+            const modal = document.getElementById('modal-ai');
+            modal.classList.remove('hidden');
+            document.getElementById('ai-error-box').classList.add('hidden');
+            const topicInput = document.getElementById('ai-topic-input');
+            setTimeout(() => topicInput.focus(), 150);
+        }
+
+        function closeAiModal() {
+            document.getElementById('modal-ai').classList.add('hidden');
+        }
+
+        function setAiTopicQuick(topicText) {
+            document.getElementById('ai-topic-input').value = topicText;
+            playSound('key');
+        }
+
+        function setAiDifficulty(diff) {
+            state.aiDifficulty = diff;
+            ['easy', 'medium', 'hard'].forEach(d => {
+                const btn = document.getElementById(`btn-diff-${d}`);
+                if (d === diff) {
+                    btn.className = "diff-btn btn-3d py-2 rounded-xl text-xs font-bold border-2 border-purple-500 bg-purple-500 text-white";
+                } else {
+                    btn.className = "diff-btn btn-3d py-2 rounded-xl text-xs font-bold border-2 border-stone-200 bg-stone-50 text-stone-700";
+                }
+            });
+            playSound('key');
+        }
+
+        async function generateAiPracticeText() {
+            const topicInput = document.getElementById('ai-topic-input');
+            let topic = topicInput.value.trim();
+            if (!topic) {
+                topic = 'Kisah persahabatan anak kucing lucu dan burung pipit';
+                topicInput.value = topic;
+            }
+
+            state.aiTopic = topic;
+
+            const btnGen = document.getElementById('btn-ai-generate');
+            const loadingBox = document.getElementById('ai-loading');
+            const errorBox = document.getElementById('ai-error-box');
+            const errorMsg = document.getElementById('ai-error-msg');
+            const resultBox = document.getElementById('ai-result-box');
+            const textDisplay = document.getElementById('ai-generated-display');
+            const textStats = document.getElementById('ai-text-stats');
+
+            // UI Loading state
+            btnGen.disabled = true;
+            btnGen.classList.add('opacity-70', 'cursor-not-allowed');
+            document.getElementById('ai-btn-text').innerText = 'Sedang Menyusun Kalimat...';
+            loadingBox.classList.remove('hidden');
+            errorBox.classList.add('hidden');
+            resultBox.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: topic,
+                        difficulty: state.aiDifficulty || 'medium'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Gagal menghubungi server Gemini.');
+                }
+
+                state.lastAiGeneratedText = data.text;
+
+                // Hitung kata & huruf
+                const words = data.text.trim().split(/\s+/).length;
+                const chars = data.text.length;
+
+                textStats.innerText = `${words} kata • ${chars} huruf`;
+                textDisplay.innerText = data.text;
+                resultBox.classList.remove('hidden');
+
+                playSound('key');
+            } catch (err) {
+                console.error('Error generate text:', err);
+                errorMsg.innerText = err.message || 'Terjadi kesalahan saat membuat teks.';
+                errorBox.classList.remove('hidden');
+                playSound('error');
+            } finally {
+                btnGen.disabled = false;
+                btnGen.classList.remove('opacity-70', 'cursor-not-allowed');
+                document.getElementById('ai-btn-text').innerText = 'Buat Teks Latihan Baru dengan AI';
+                loadingBox.classList.add('hidden');
+            }
+        }
+
+        function startAiPracticeGame() {
+            if (!state.lastAiGeneratedText) return;
+
+            closeAiModal();
+            state.gameType = 'ai';
+            state.targetText = state.lastAiGeneratedText;
+            resetGameSession();
+
+            const truncatedTopic = state.aiTopic.length > 25 ? state.aiTopic.slice(0, 25) + '...' : state.aiTopic;
+            document.getElementById('game-mode-badge').innerText = `✨ AI: ${truncatedTopic}`;
+            document.getElementById('hud-score-box').classList.add('hidden');
+            document.getElementById('live-timer').innerText = '0s';
+
+            prepareGameScreen();
+        }
+
+        // --- 8. MESIN PERMAINAN INTI (CORE TYPING ENGINE) ---
+        function resetGameSession() {
+            stopTimer();
+            state.currentIndex = 0;
+            state.correctChars = 0;
+            state.totalKeystrokes = 0;
+            state.comboStreak = 0;
+            state.wordsCompleted = 0;
+            state.score = 0;
+            state.isPlaying = false;
+            state.startTime = null;
+
+            document.getElementById('live-wpm').innerText = '0';
+            document.getElementById('game-progress-bar').style.width = '0%';
+            document.getElementById('combo-badge').classList.add('hidden');
+            document.getElementById('typing-card').classList.remove('on-fire-mode');
+            document.getElementById('game-mascot').innerText = state.mascotEmoji;
+            document.getElementById('mascot-speech').innerText = `Ketik huruf pertama untuk mulai! Semangat! 💪`;
+        }
+
+        function prepareGameScreen() {
+            showScreen('screen-game');
+            
+            // Tampilkan bantuan sesuai Mode HP atau Keyboard
+            if (state.deviceMode === 'hp') {
+                document.getElementById('visual-keyboard-container').classList.add('hidden');
+                document.getElementById('visual-keyboard-container').classList.remove('sm:flex');
+                document.getElementById('mobile-helper-container').classList.remove('hidden');
+                document.getElementById('mobile-helper-container').classList.add('flex');
+            } else {
+                document.getElementById('mobile-helper-container').classList.add('hidden');
+                document.getElementById('mobile-helper-container').classList.remove('flex');
+                document.getElementById('visual-keyboard-container').classList.remove('hidden');
+                document.getElementById('visual-keyboard-container').classList.add('sm:flex');
+            }
+
+            renderTargetText();
+            highlightVirtualKey();
+            
+            const input = document.getElementById('hidden-typing-input');
+            input.value = '';
+            setTimeout(() => focusInput(), 100);
+        }
+
+        function focusInput() {
+            const input = document.getElementById('hidden-typing-input');
+            input.focus();
+            document.getElementById('focus-overlay').classList.add('hidden');
+        }
+
+        // Deteksi jika input kehilangan fokus
+        document.getElementById('hidden-typing-input').addEventListener('blur', () => {
+            if (!document.getElementById('screen-game').classList.contains('hidden')) {
+                document.getElementById('focus-overlay').classList.remove('hidden');
+            }
+        });
+
+        function renderTargetText() {
+            const container = document.getElementById('target-text-display');
+            const text = state.targetText;
+            let html = '';
+
+            // Untuk Time Attack, tampilkan potongan teks di sekitar kursor agar tidak kepanjangan
+            let startRender = 0;
+            let endRender = text.length;
+            if (state.gameType === 'time') {
+                startRender = Math.max(0, state.currentIndex - 15);
+                endRender = Math.min(text.length, startRender + 45);
+            }
+
+            for (let i = startRender; i < endRender; i++) {
+                let char = text[i];
+                let displayChar = char === ' ' ? '&nbsp;' : char;
+
+                if (i < state.currentIndex) {
+                    // Sudah diketik benar
+                    html += `<span class="text-emerald-500 font-bold">${displayChar}</span>`;
+                } else if (i === state.currentIndex) {
+                    // Karakter aktif saat ini
+                    let cursorBg = char === ' ' ? 'bg-pink-200 px-1' : '';
+                    html += `<span id="active-char" class="cursor-blink text-pink-600 font-bold ${cursorBg}">${displayChar}</span>`;
+                } else {
+                    // Belum diketik
+                    html += `<span class="text-stone-400">${displayChar}</span>`;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        // Listener utama untuk ketikan (Mendukung Keyboard Fisik & Virtual Keyboard HP)
+        document.getElementById('hidden-typing-input').addEventListener('input', function(e) {
+            const val = this.value;
+            if (!val) return;
+
+            // Ambil karakter terakhir yang diketik
+            const typedChar = val.slice(-1);
+            this.value = ''; // Kosongkan kembali agar bersih
+
+            handleCharacterInput(typedChar);
+        });
+
+        function handleCharacterInput(typedChar) {
+            // Mulai timer pada ketikan pertama
+            if (!state.isPlaying) {
+                state.isPlaying = true;
+                state.startTime = Date.now();
+                startTimer();
+            }
+
+            state.totalKeystrokes++;
+            const expectedChar = state.targetText[state.currentIndex];
+            const mascotEl = document.getElementById('game-mascot');
+            const speechEl = document.getElementById('mascot-speech');
+
+            if (typedChar === expectedChar) {
+                // --- KETIKAN BENAR ---
+                playSound('key');
+                state.currentIndex++;
+                state.correctChars++;
+                state.comboStreak++;
+
+                // Hitung kata selesai (setiap ketemu spasi)
+                if (expectedChar === ' ') {
+                    state.wordsCompleted++;
+                }
+
+                // Tambah skor pada Time Attack
+                if (state.gameType === 'time') {
+                    const multiplier = state.comboStreak >= 15 ? 2 : 1;
+                    state.score += (10 * multiplier);
+                    document.getElementById('live-score').innerText = state.score;
+
+                    // Tambah kata baru jika hampir habis
+                    if (state.targetText.length - state.currentIndex < 25) {
+                        state.targetText += " " + generateRandomWords(10);
+                    }
+                }
+
+                // Reaksi Maskot & Mode On-Fire
+                mascotEl.classList.remove('animate-shake-oops');
+                void mascotEl.offsetWidth; // trigger reflow
+                mascotEl.classList.add('animate-bounce-cute');
+
+                if (state.comboStreak >= 15) {
+                    document.getElementById('typing-card').classList.add('on-fire-mode');
+                    speechEl.innerText = `🔥 ON FIRE! ${state.mascotName} berlari super cepat! (2x Poin)`;
+                } else if (state.comboStreak % 5 === 0) {
+                    speechEl.innerText = `Keren! ${state.comboStreak} ketikan beruntun tanpa salah! ✨`;
+                }
+
+                updateComboUI();
+                updateLiveStats();
+                renderTargetText();
+                highlightVirtualKey();
+
+                // Cek selesai untuk Mode Level atau Mode AI
+                if ((state.gameType === 'level' || state.gameType === 'ai') && state.currentIndex >= state.targetText.length) {
+                    state.wordsCompleted++;
+                    finishGame();
+                }
+
+            } else {
+                // --- SALAH KETIK (TYPO) ---
+                playSound('error');
+                state.comboStreak = 0;
+                document.getElementById('typing-card').classList.remove('on-fire-mode');
+                updateComboUI();
+
+                // Animasi kaget pada maskot & teks
+                mascotEl.classList.remove('animate-bounce-cute');
+                void mascotEl.offsetWidth;
+                mascotEl.classList.add('animate-shake-oops');
+                
+                const activeSpan = document.getElementById('active-char');
+                if (activeSpan) {
+                    activeSpan.classList.add('bg-rose-500', 'text-white');
+                }
+
+                const targetDisplay = expectedChar === ' ' ? 'SPASI' : `"${expectedChar}"`;
+                speechEl.innerText = `Ups! Tekan tombol ${targetDisplay} ya! 🙈`;
+            }
+        }
+
+        function updateComboUI() {
+            const badge = document.getElementById('combo-badge');
+            if (state.comboStreak >= 3) {
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+                document.getElementById('combo-count').innerText = `${state.comboStreak}x 🔥`;
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+        }
+
+        function updateLiveStats() {
+            const elapsedMin = Math.max((Date.now() - state.startTime) / 60000, 0.01);
+            // Standar WPM: (Karakter benar / 5) / menit
+            const wpm = Math.round((state.correctChars / 5) / elapsedMin);
+            document.getElementById('live-wpm').innerText = wpm;
+
+            if (state.gameType === 'level' || state.gameType === 'ai') {
+                const pct = Math.min(100, Math.round((state.currentIndex / state.targetText.length) * 100));
+                document.getElementById('game-progress-bar').style.width = `${pct}%`;
+            }
+        }
+
+        // --- 9. TIMER & SELESAI PERMAINAN ---
+        function startTimer() {
+            stopTimer();
+            state.timerInterval = setInterval(() => {
+                if (state.gameType === 'level' || state.gameType === 'ai') {
+                    const sec = Math.floor((Date.now() - state.startTime) / 1000);
+                    document.getElementById('live-timer').innerText = `${sec}s`;
+                    updateLiveStats();
+                } else {
+                    // Time Attack mundur
+                    state.timeLeft--;
+                    document.getElementById('live-timer').innerText = `${state.timeLeft}s`;
+                    const pct = ((state.timeDuration - state.timeLeft) / state.timeDuration) * 100;
+                    document.getElementById('game-progress-bar').style.width = `${pct}%`;
+                    updateLiveStats();
+
+                    if (state.timeLeft <= 0) {
+                        finishGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+        }
+
+        function quitGame() {
+            stopTimer();
+            state.isPlaying = false;
+            if (state.gameType === 'level') {
+                openLevelSelect();
+            } else {
+                goHome();
+            }
+        }
+
+        function finishGame() {
+            stopTimer();
+            state.isPlaying = false;
+            playSound('win');
+
+            // Efek Confetti Lucu
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+            }
+
+            const elapsedSec = Math.max(Math.round((Date.now() - state.startTime) / 1000), 1);
+            const elapsedMin = elapsedSec / 60;
+            const wpm = Math.round((state.correctChars / 5) / elapsedMin);
+            const accuracy = state.totalKeystrokes > 0 
+                ? Math.round((state.correctChars / state.totalKeystrokes) * 100) 
+                : 100;
+
+            document.getElementById('res-wpm').innerText = wpm;
+            document.getElementById('res-acc').innerText = `${accuracy}%`;
+
+            // Hitung Bintang
+            let stars = '⭐';
+            if (accuracy >= 95 && wpm >= 20) stars = '⭐⭐⭐';
+            else if (accuracy >= 85) stars = '⭐⭐';
+            document.getElementById('result-stars').innerText = stars;
+
+            const btnNext = document.getElementById('btn-next-level');
+            const enterHint = document.getElementById('enter-hint-text');
+
+            if (state.gameType === 'level') {
+                document.getElementById('result-title').innerText = `Level ${state.currentLevelId} Selesai!`;
+                document.getElementById('result-subtitle').innerText = `${state.mascotName} sangat bangga padamu!`;
+                document.getElementById('res-third-label').innerText = 'Waktu';
+                document.getElementById('res-third-val').innerText = `${elapsedSec}s`;
+                document.getElementById('res-third-sub').innerText = 'Detik';
+
+                // Buka level berikutnya
+                const mode = state.deviceMode;
+                if (state.currentLevelId === state.unlockedLevel[mode] && state.currentLevelId < 10) {
+                    state.unlockedLevel[mode]++;
+                    saveProgress();
+                }
+
+                if (state.currentLevelId < 10) {
+                    btnNext.classList.remove('hidden');
+                    btnNext.innerText = `Level ${state.currentLevelId + 1} ➔ [Enter]`;
+                    btnNext.onclick = nextLevel;
+                    enterHint.classList.remove('hidden');
+                } else {
+                    btnNext.classList.add('hidden');
+                    enterHint.classList.add('hidden');
+                    document.getElementById('result-subtitle').innerText = `LUAR BIASA! Kamu menamatkan semua level! 👑`;
+                }
+            } else if (state.gameType === 'ai') {
+                // Hasil Mode AI
+                document.getElementById('result-title').innerText = `✨ Latihan AI Selesai!`;
+                document.getElementById('result-subtitle').innerText = `Topik: "${state.aiTopic || 'Kustom'}" • Hebat sekali!`;
+                document.getElementById('res-third-label').innerText = 'Waktu';
+                document.getElementById('res-third-val').innerText = `${elapsedSec}s`;
+                document.getElementById('res-third-sub').innerText = 'Detik';
+
+                btnNext.classList.remove('hidden');
+                btnNext.innerText = '✨ Buat Teks AI Baru ➔';
+                btnNext.onclick = openAiModal;
+                enterHint.classList.remove('hidden');
+            } else {
+                // Hasil Time Attack
+                document.getElementById('result-title').innerText = `Waktu Habis!`;
+                document.getElementById('result-subtitle').innerText = `Kamu berhasil mengetik ${state.wordsCompleted} kata!`;
+                document.getElementById('res-third-label').innerText = 'Total Kata';
+                document.getElementById('res-third-val').innerText = state.wordsCompleted;
+                document.getElementById('res-third-sub').innerText = `Skor: ${state.score}`;
+
+                const mode = state.deviceMode;
+                if (state.wordsCompleted > state.highScoreWords[mode]) {
+                    state.highScoreWords[mode] = state.wordsCompleted;
+                    document.getElementById('result-subtitle').innerText = `🎉 REKOR BARU! ${state.wordsCompleted} Kata diketik!`;
+                    saveProgress();
+                }
+                btnNext.classList.add('hidden');
+                enterHint.classList.add('hidden');
+            }
+
+            // Lepas fokus dari input tersembunyi agar Enter tidak bertabrakan dengan ketikan terakhir
+            document.getElementById('hidden-typing-input').blur();
+            showScreen('screen-result');
+        }
+
+        // Listener global untuk tombol Enter pada layar hasil akhir
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const resultScreen = document.getElementById('screen-result');
+                const btnNext = document.getElementById('btn-next-level');
+                
+                // Cek apakah sedang berada di layar hasil dan tombol Lanjut Level tersedia
+                if (!resultScreen.classList.contains('hidden') && !btnNext.classList.contains('hidden')) {
+                    e.preventDefault();
+                    if (state.gameType === 'ai') {
+                        openAiModal();
+                    } else {
+                        nextLevel();
+                    }
+                }
+            }
+        });
+
+        function retryCurrentGame() {
+            if (state.gameType === 'level') {
+                startLevel(state.currentLevelId);
+            } else if (state.gameType === 'ai') {
+                resetGameSession();
+                const truncatedTopic = state.aiTopic.length > 25 ? state.aiTopic.slice(0, 25) + '...' : state.aiTopic;
+                document.getElementById('game-mode-badge').innerText = `✨ AI: ${truncatedTopic}`;
+                document.getElementById('hud-score-box').classList.add('hidden');
+                document.getElementById('live-timer').innerText = '0s';
+                prepareGameScreen();
+            } else {
+                startTimeAttack();
+            }
+        }
+
+        function nextLevel() {
+            if (state.currentLevelId < 10) {
+                startLevel(state.currentLevelId + 1);
+            }
+        }
+
+        // --- 10. VISUAL KEYBOARD HELPER (MODE KEYBOARD) ---
+        const KEYBOARD_LAYOUT = [
+            ['1','2','3','4','5','6','7','8','9','0'],
+            ['q','w','e','r','t','y','u','i','o','p'],
+            ['a','s','d','f','g','h','j','k','l'],
+            ['z','x','c','v','b','n','m',',','.','?'],
+            ['SPACE']
+        ];
+
+        function buildVisualKeyboard() {
+            const container = document.getElementById('vk-rows');
+            container.innerHTML = '';
+
+            KEYBOARD_LAYOUT.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'flex justify-center gap-1';
+
+                row.forEach(key => {
+                    const keyEl = document.createElement('div');
+                    const isSpace = key === 'SPACE';
+                    keyEl.dataset.key = isSpace ? ' ' : key;
+                    keyEl.className = `vk-key ${isSpace ? 'w-48' : 'w-8 sm:w-10'} h-8 sm:h-9 rounded-lg bg-white border-b-2 border-stone-300 flex items-center justify-center text-xs font-bold text-stone-600 uppercase transition-all`;
+                    keyEl.innerText = isSpace ? 'SPASI' : key;
+                    rowDiv.appendChild(keyEl);
+                });
+
+                container.appendChild(rowDiv);
+            });
+        }
+
+        function highlightVirtualKey() {
+            if (state.deviceMode !== 'kb') return;
+            const targetChar = (state.targetText[state.currentIndex] || '').toLowerCase();
+
+            document.querySelectorAll('.vk-key').forEach(el => {
+                if (el.dataset.key === targetChar) {
+                    el.classList.remove('bg-white', 'text-stone-600', 'border-stone-300');
+                    el.classList.add('bg-pink-500', 'text-white', 'border-pink-700', 'scale-110', 'shadow-md');
+                } else {
+                    el.classList.add('bg-white', 'text-stone-600', 'border-stone-300');
+                    el.classList.remove('bg-pink-500', 'text-white', 'border-pink-700', 'scale-110', 'shadow-md');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
