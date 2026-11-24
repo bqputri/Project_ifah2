@@ -37,23 +37,42 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-        const { topic = 'Kucing lucu dan petualangannya', difficulty = 'medium' } = req.body || {};
+        const { topic = 'Kucing lucu dan petualangannya', difficulty = 'medium', lang = 'id' } = req.body || {};
 
-        let lengthInstruction = '2 sampai 3 kalimat yang seru dan mengalir lancar';
-        if (difficulty === 'easy') {
-            lengthInstruction = '1 kalimat singkat dan mudah';
-        } else if (difficulty === 'hard') {
-            lengthInstruction = '1 paragraf lengkap dan menantang';
-        }
+        let promptText = '';
+        if (lang === 'en') {
+            let lengthInstruction = '2 to 3 smooth, engaging sentences';
+            if (difficulty === 'easy') {
+                lengthInstruction = '1 short, simple sentence';
+            } else if (difficulty === 'hard') {
+                lengthInstruction = '1 complete, challenging paragraph';
+            }
 
-        const promptText = `
+            promptText = `
+Write an engaging typing practice text in English on the topic: "${topic}".
+
+Strict Requirements:
+1. Length: ${lengthInstruction}.
+2. Provide ONLY the practice text directly without any intro, without quotation marks, without word numbering, and without markdown format.
+3. Use natural English vocabulary, proper capitalization, and standard punctuation suitable for typing practice.
+            `.trim();
+        } else {
+            let lengthInstruction = '2 sampai 3 kalimat yang seru dan mengalir lancar';
+            if (difficulty === 'easy') {
+                lengthInstruction = '1 kalimat singkat dan mudah';
+            } else if (difficulty === 'hard') {
+                lengthInstruction = '1 paragraf lengkap dan menantang';
+            }
+
+            promptText = `
 Tulis teks kalimat latihan mengetik dalam bahasa Indonesia dengan topik: "${topic}".
 
 Ketentuan Wajib:
 1. Panjang: ${lengthInstruction}.
 2. Langsung berikan teks kalimat ceritanya saja tanpa kata pengantar, tanpa tanda kutip, tanpa penomoran kata/angka, dan tanpa format markdown.
 3. Gunakan ejaan dan tanda baca bahasa Indonesia yang baik, seru, dan nyaman untuk latihan mengetik.
-        `.trim();
+            `.trim();
+        }
 
         // Model Gemini aktif yang didukung (diurutkan berdasarkan model paling stabil & responsif)
         const models = [
@@ -120,6 +139,7 @@ Ketentuan Wajib:
             success: true,
             topic,
             difficulty,
+            lang,
             text: generatedText
         });
 
