@@ -80,18 +80,81 @@
         .dark-theme .text-stone-700,
         .dark-theme .text-stone-800,
         .dark-theme .text-stone-900,
-        .dark-theme .text-sky-900,
-        .dark-theme .text-orange-900,
         .dark-theme .text-amber-900 {
             color: #F2EFFE !important;
         }
 
         .dark-theme .text-stone-500,
         .dark-theme .text-stone-600,
-        .dark-theme .text-sky-700,
-        .dark-theme .text-orange-800,
         .dark-theme .text-amber-700 {
             color: #A69FBF !important;
+        }
+
+        /* Mode Cards (Petualangan, Tantangan Waktu, Balapan Online) tetap kontras & berwarna cerah di Dark Mode */
+        .mode-card-blue h2,
+        .mode-card-blue .mode-title,
+        .dark-theme .mode-card-blue h2,
+        .dark-theme .mode-card-blue .mode-title {
+            color: #0c4a6e !important;
+        }
+        .mode-card-blue p,
+        .mode-card-blue .mode-desc,
+        .dark-theme .mode-card-blue p,
+        .dark-theme .mode-card-blue .mode-desc {
+            color: #0369a1 !important;
+        }
+        .mode-card-blue .mode-footer,
+        .mode-card-blue #home-progress-text,
+        .dark-theme .mode-card-blue .mode-footer,
+        .dark-theme .mode-card-blue #home-progress-text {
+            color: #0c4a6e !important;
+        }
+
+        .mode-card-orange h2,
+        .mode-card-orange .mode-title,
+        .dark-theme .mode-card-orange h2,
+        .dark-theme .mode-card-orange .mode-title {
+            color: #7c2d12 !important;
+        }
+        .mode-card-orange p,
+        .mode-card-orange .mode-desc,
+        .dark-theme .mode-card-orange p,
+        .dark-theme .mode-card-orange .mode-desc {
+            color: #9a3412 !important;
+        }
+        .mode-card-orange .mode-footer,
+        .mode-card-orange #home-highscore-text,
+        .dark-theme .mode-card-orange .mode-footer,
+        .dark-theme .mode-card-orange #home-highscore-text {
+            color: #7c2d12 !important;
+        }
+
+        .mode-card-green h2,
+        .mode-card-green .mode-title,
+        .dark-theme .mode-card-green h2,
+        .dark-theme .mode-card-green .mode-title {
+            color: #064e3b !important;
+        }
+        .mode-card-green p,
+        .mode-card-green .mode-desc,
+        .dark-theme .mode-card-green p,
+        .dark-theme .mode-card-green .mode-desc {
+            color: #065f46 !important;
+        }
+        .mode-card-green .mode-footer,
+        .dark-theme .mode-card-green .mode-footer {
+            color: #064e3b !important;
+        }
+
+        /* Sub-screens Title di Dark Mode */
+        .dark-theme #screen-levels h2 {
+            color: #38bdf8 !important;
+        }
+        .dark-theme #screen-time-setup h2 {
+            color: #fb923c !important;
+        }
+        .dark-theme #screen-race-lobby h2 {
+            color: #34d399 !important;
         }
 
         .dark-theme .bg-stone-100,
@@ -299,48 +362,48 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 max-w-3xl mx-auto mb-6">
                 
                 <!-- 1. Mode Petualangan -->
-                <div onclick="openLevelSelect()" class="btn-3d cursor-pointer bg-gradient-to-br from-sky-100 to-blue-100 hover:from-sky-200 hover:to-blue-200 border-4 border-sky-300 rounded-3xl p-4 text-left flex flex-col justify-between group">
+                <div onclick="openLevelSelect()" class="mode-card-blue btn-3d cursor-pointer bg-gradient-to-br from-sky-100 to-blue-100 hover:from-sky-200 hover:to-blue-200 border-4 border-sky-300 rounded-3xl p-4 text-left flex flex-col justify-between group">
                     <div>
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-3xl group-hover:scale-110 transition-transform">🗺️</span>
                             <span class="bg-sky-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" data-i18n="levelBadge">Bertahap</span>
                         </div>
-                        <h2 class="text-lg font-bold text-sky-900 mb-1" data-i18n="levelModeTitle">Mode Petualangan</h2>
-                        <p class="text-xs text-sky-700" data-i18n="levelModeDesc">Mulai dari level mudah hingga master 10 jari!</p>
+                        <h2 class="text-lg font-bold text-sky-900 mb-1 mode-title" data-i18n="levelModeTitle">Mode Petualangan</h2>
+                        <p class="text-xs text-sky-700 mode-desc" data-i18n="levelModeDesc">Mulai dari level mudah hingga master 10 jari!</p>
                     </div>
-                    <div class="mt-3 pt-2.5 border-t border-sky-200/80 flex justify-between items-center text-xs font-bold text-sky-800">
+                    <div class="mt-3 pt-2.5 border-t border-sky-200/80 flex justify-between items-center text-xs font-bold text-sky-800 mode-footer">
                         <span id="home-progress-text">Progres: Level 1 / 100</span>
                         <span>➔</span>
                     </div>
                 </div>
 
                 <!-- 2. Mode Tantangan Waktu -->
-                <div onclick="openTimeSetup()" class="btn-3d cursor-pointer bg-gradient-to-br from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 border-4 border-orange-300 rounded-3xl p-4 text-left flex flex-col justify-between group">
+                <div onclick="openTimeSetup()" class="mode-card-orange btn-3d cursor-pointer bg-gradient-to-br from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 border-4 border-orange-300 rounded-3xl p-4 text-left flex flex-col justify-between group">
                     <div>
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-3xl group-hover:scale-110 transition-transform">⏱️</span>
                             <span class="bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" data-i18n="timeBadge">Skor Tinggi</span>
                         </div>
-                        <h2 class="text-lg font-bold text-orange-900 mb-1" data-i18n="timeModeTitle">Tantangan Waktu</h2>
-                        <p class="text-xs text-orange-800" data-i18n="timeModeDesc">Berpacu dengan waktu! Aktifkan Mode On-Fire!</p>
+                        <h2 class="text-lg font-bold text-orange-900 mb-1 mode-title" data-i18n="timeModeTitle">Tantangan Waktu</h2>
+                        <p class="text-xs text-orange-800 mode-desc" data-i18n="timeModeDesc">Berpacu dengan waktu! Aktifkan Mode On-Fire!</p>
                     </div>
-                    <div class="mt-3 pt-2.5 border-t border-orange-200/80 flex justify-between items-center text-xs font-bold text-orange-900">
+                    <div class="mt-3 pt-2.5 border-t border-orange-200/80 flex justify-between items-center text-xs font-bold text-orange-900 mode-footer">
                         <span id="home-highscore-text">Rekor: 0 Kata</span>
                         <span>➔</span>
                     </div>
                 </div>
 
                 <!-- 3. BARU: Mode Balapan Online (Multiplayer) -->
-                <div onclick="openRaceLobby()" class="btn-3d cursor-pointer bg-gradient-to-br from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 border-4 border-emerald-300 rounded-3xl p-4 text-left flex flex-col justify-between group">
+                <div onclick="openRaceLobby()" class="mode-card-green btn-3d cursor-pointer bg-gradient-to-br from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 border-4 border-emerald-300 rounded-3xl p-4 text-left flex flex-col justify-between group">
                     <div>
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-3xl group-hover:scale-110 transition-transform">🏁</span>
                             <span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" data-i18n="raceBadge">Multiplayer</span>
                         </div>
-                        <h2 class="text-lg font-bold text-emerald-900 mb-1" data-i18n="raceModeTitle">Balapan Online</h2>
-                        <p class="text-xs text-emerald-800" data-i18n="raceModeDesc">Buat room & balapan ketik waktu nyata bersama teman!</p>
+                        <h2 class="text-lg font-bold text-emerald-900 mb-1 mode-title" data-i18n="raceModeTitle">Balapan Online</h2>
+                        <p class="text-xs text-emerald-800 mode-desc" data-i18n="raceModeDesc">Buat room & balapan ketik waktu nyata bersama teman!</p>
                     </div>
-                    <div class="mt-3 pt-2.5 border-t border-emerald-200/80 flex justify-between items-center text-xs font-bold text-emerald-900">
+                    <div class="mt-3 pt-2.5 border-t border-emerald-200/80 flex justify-between items-center text-xs font-bold text-emerald-900 mode-footer">
                         <span data-i18n="raceAction">Gabung Balapan</span>
                         <span>➔</span>
                     </div>
