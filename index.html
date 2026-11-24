@@ -906,7 +906,7 @@
                     <div id="supabase-auth-form" class="flex flex-col gap-2">
                         <input type="text" id="cloud-email" placeholder="Email atau Nama Pengguna" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
                         <div class="relative flex items-center">
-                            <input type="password" id="cloud-password" placeholder="Kata Sandi (minimal 4 karakter)" class="w-full p-2.5 pr-10 rounded-xl border border-stone-300 text-stone-800 bg-white focus:outline-none focus:border-purple-400">
+                            <input type="password" id="cloud-password" onkeydown="if(event.key==='Enter') accountSignIn()" placeholder="Kata Sandi (minimal 4 karakter)" class="w-full p-2.5 pr-10 rounded-xl border border-stone-300 text-stone-800 bg-white focus:outline-none focus:border-purple-400">
                             <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 text-stone-400 hover:text-stone-600 focus:outline-none text-base cursor-pointer" title="Lihat/Sembunyikan Kata Sandi">
                                 <span id="pwd-toggle-icon">👁️</span>
                             </button>
@@ -1889,7 +1889,7 @@
             const key = email.toLowerCase();
 
             if (accounts[key]) {
-                showAccountAlert("Akun dengan email/nama ini sudah terdaftar. Silakan klik Masuk (Sign In).", 'rose');
+                showAccountAlert(`ℹ️ Akun <strong>"${email}"</strong> sudah pernah didaftarkan di sini.<br><span class="text-[11px] font-normal">Silakan langsung klik tombol <strong>'🔑 Masuk (Sign In)'</strong>.</span>`, 'rose');
                 return;
             }
 
@@ -1942,8 +1942,13 @@
             const key = email.toLowerCase();
             const acc = accounts[key];
 
-            if (!acc || acc.password !== password) {
-                showAccountAlert("Email/Username atau kata sandi tidak cocok. Silakan periksa kembali.", 'rose');
+            if (!acc) {
+                showAccountAlert(`⚠️ Akun <strong>"${email}"</strong> belum terdaftar di browser ini.<br><span class="text-[11px] font-normal">Jika ini pertama kali menggunakan akun ini di sini, silakan klik tombol <strong>'📝 Daftar Baru'</strong> di samping.</span>`, 'rose');
+                return;
+            }
+
+            if (acc.password !== password) {
+                showAccountAlert(`⚠️ Kata sandi untuk akun <strong>"${email}"</strong> salah.<br><span class="text-[11px] font-normal">Pastikan huruf besar/kecil benar, atau klik ikon 👁️ pada kolom kata sandi untuk memeriksanya.</span>`, 'rose');
                 return;
             }
 
