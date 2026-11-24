@@ -36,6 +36,8 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- Supabase JS Client untuk Autentikasi & Realtime Multiplayer (Opsional Cloud Sync) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 100 Level Dataset -->
+    <script src="levels.js"></script>
 
     <style>
         body {
@@ -307,7 +309,7 @@
                         <p class="text-xs text-sky-700" data-i18n="levelModeDesc">Mulai dari level mudah hingga master 10 jari!</p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-sky-200/80 flex justify-between items-center text-xs font-bold text-sky-800">
-                        <span id="home-progress-text">Progres: Level 1 / 10</span>
+                        <span id="home-progress-text">Progres: Level 1 / 100</span>
                         <span>➔</span>
                     </div>
                 </div>
@@ -524,12 +526,27 @@
                 <div class="w-20"></div>
             </div>
 
-            <p class="text-center text-xs sm:text-sm text-stone-500 mb-5" data-i18n="levelMapSubtitle">
-                Selesaikan tiap level untuk membuka tantangan berikutnya. Level awal sangat mudah!
+            <p class="text-center text-xs sm:text-sm text-stone-500 mb-4" data-i18n="levelMapSubtitle">
+                Selesaikan tiap level untuk membuka tantangan berikutnya. Tersedia 100 level dari yang paling mudah hingga master!
             </p>
 
+            <!-- Tier Filter Tabs & Tombol Lompat ke Level Aktif -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4 bg-sky-50/80 p-2.5 rounded-2xl border border-sky-200">
+                <div class="flex flex-wrap gap-1" id="level-tier-tabs">
+                    <button onclick="setLevelTierFilter('all')" id="tier-btn-all" class="px-2.5 py-1 text-xs font-bold rounded-xl bg-sky-600 text-white shadow-xs">Semua (1-100)</button>
+                    <button onclick="setLevelTierFilter('t1')" id="tier-btn-t1" class="px-2.5 py-1 text-xs font-bold rounded-xl bg-white text-stone-700 hover:bg-sky-100">1-20 (Dasar)</button>
+                    <button onclick="setLevelTierFilter('t2')" id="tier-btn-t2" class="px-2.5 py-1 text-xs font-bold rounded-xl bg-white text-stone-700 hover:bg-sky-100">21-40 (Kalimat)</button>
+                    <button onclick="setLevelTierFilter('t3')" id="tier-btn-t3" class="px-2.5 py-1 text-xs font-bold rounded-xl bg-white text-stone-700 hover:bg-sky-100">41-60 (Tanda Baca)</button>
+                    <button onclick="setLevelTierFilter('t4')" id="tier-btn-t4" class="px-2.5 py-1 text-xs font-bold rounded-xl bg-white text-stone-700 hover:bg-sky-100">61-80 (Angka & Simbol)</button>
+                    <button onclick="setLevelTierFilter('t5')" id="tier-btn-t5" class="px-2.5 py-1 text-xs font-bold rounded-xl bg-white text-stone-700 hover:bg-sky-100">81-100 (Master 👑)</button>
+                </div>
+                <button onclick="jumpToCurrentLevel()" class="btn-3d px-3 py-1 bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold text-xs rounded-xl border border-amber-500 shadow-sm flex items-center gap-1">
+                    🎯 <span>Level Aktif</span>
+                </button>
+            </div>
+
             <!-- Grid Level -->
-            <div id="levels-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto p-1 no-scrollbar">
+            <div id="levels-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto p-1.5 no-scrollbar scroll-smooth">
                 <!-- Diisi oleh JavaScript -->
             </div>
         </section>
@@ -813,7 +830,12 @@
 
                     <div id="supabase-auth-form" class="flex flex-col gap-2">
                         <input type="text" id="cloud-email" placeholder="Email atau Nama Pengguna" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
-                        <input type="password" id="cloud-password" placeholder="Kata Sandi (minimal 4 karakter)" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
+                        <div class="relative flex items-center">
+                            <input type="password" id="cloud-password" placeholder="Kata Sandi (minimal 4 karakter)" class="w-full p-2.5 pr-10 rounded-xl border border-stone-300 text-stone-800 bg-white focus:outline-none focus:border-purple-400">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 text-stone-400 hover:text-stone-600 focus:outline-none text-base cursor-pointer" title="Lihat/Sembunyikan Kata Sandi">
+                                <span id="pwd-toggle-icon">👁️</span>
+                            </button>
+                        </div>
                         
                         <div class="flex gap-2 mt-1">
                             <button onclick="accountSignIn()" class="btn-3d flex-1 py-2 bg-purple-600 text-white font-bold rounded-xl" data-i18n="btnSignIn">
@@ -1175,61 +1197,10 @@
             }
         };
 
-        // Bank Level ID & EN
-        const LEVEL_DATA = {
-            id: {
-                kb: [
-                    { id: 1, title: "Level 1: Pemanasan Dasar", desc: "Huruf F dan J (Home Row)", text: "fff jjj ff jj fj jf fff jjj fjf jfj" },
-                    { id: 2, title: "Level 2: Kiri & Kanan", desc: "Menambah huruf D dan K", text: "ddd kkk df jk fd kj dfjk kjfd ddd kkk" },
-                    { id: 3, title: "Level 3: Empat Jari", desc: "Menambah huruf S dan L", text: "sss lll asdf jkl sada lala fasa kala" },
-                    { id: 4, title: "Level 4: Baris Tengah Penuh", desc: "Semua huruf baris tengah", text: "aku suka gula jawa dan rasa kelapa muda" },
-                    { id: 5, title: "Level 5: Baris Atas", desc: "Mengenal huruf E, R, U, I", text: "kue kering ibu rasa keju dan susu murni" },
-                    { id: 6, title: "Level 6: Kata Sehari-hari", desc: "Kalimat pendek tanpa kapital", text: "kucing lucu itu sedang tidur di atas sofa empuk" },
-                    { id: 7, title: "Level 7: Huruf Kapital", desc: "Mulai menggunakan huruf besar", text: "Budi dan Sari pergi ke Taman Safari pada hari Minggu" },
-                    { id: 8, title: "Level 8: Tanda Baca", desc: "Titik, koma, dan tanda tanya", text: "Halo, apa kabar? Semoga harimu menyenangkan ya!" },
-                    { id: 9, title: "Level 9: Angka & Simbol", desc: "Kombinasi angka di kalimat", text: "Saya membeli 5 roti coklat dan 12 permen seharga 25000 rupiah." },
-                    { id: 10, title: "Level 10: Master Ketik!", desc: "Tantangan kecepatan penuh", text: "Kucing oranye melompat lincah melewati 3 pagar kayu sambil mengejar kupu-kupu biru!" }
-                ],
-                hp: [
-                    { id: 1, title: "Level 1: Jempol Santai", desc: "Kata 2-3 huruf super mudah", text: "aku dia ini itu dan ada apa iya" },
-                    { id: 2, title: "Level 2: Sapaan Cepat", desc: "Kata sapaan sehari-hari", text: "halo pagi siang sore malam apa kabar kamu" },
-                    { id: 3, title: "Level 3: Obrolan Chat", desc: "Kalimat pendek tanpa spasi rumit", text: "lagi dimana nih aku sudah sampai di depan" },
-                    { id: 4, title: "Level 4: Makanan Enak", desc: "Melatih kelincahan dua jempol", text: "nasi goreng ayam bakar es teh manis dan bakso urat" },
-                    { id: 5, title: "Level 5: Kalimat Lengkap", desc: "Kalimat obrolan agak panjang", text: "nanti sore kita jadi main ke rumah nenek kan" },
-                    { id: 6, title: "Level 6: Huruf Kapital", desc: "Gunakan tombol Shift di HP", text: "Besok pagi Jakarta cerah sekali untuk jalan santai" },
-                    { id: 7, title: "Level 7: Tanda Baca Chat", desc: "Tanda tanya dan seru", text: "Wah, benarkah itu? Keren sekali kamu hari ini!" },
-                    { id: 8, title: "Level 8: Jajan & Harga", desc: "Kombinasi huruf dan angka", text: "Tolong belikan 2 kopi susu dan 4 donat coklat ya" },
-                    { id: 9, title: "Level 9: Berita Singkat", desc: "Kalimat panjang tanpa typo", text: "Anak kucing yang lucu itu akhirnya ditemukan sedang tertidur pulas di keranjang." },
-                    { id: 10, title: "Level 10: Raja Jempol!", desc: "Ujian kecepatan jempol kilat", text: "Selamat! Kamu berhasil mengetik 100% cepat dan akurat menggunakan kedua jempolmu!" }
-                ]
-            },
-            en: {
-                kb: [
-                    { id: 1, title: "Level 1: Home Row Warmup", desc: "Keys F and J (Index fingers)", text: "fff jjj ff jj fj jf fff jjj fjf jfj" },
-                    { id: 2, title: "Level 2: Left & Right", desc: "Adding D and K keys", text: "ddd kkk df jk fd kj dfjk kjfd ddd kkk" },
-                    { id: 3, title: "Level 3: Four Fingers", desc: "Adding S and L keys", text: "sss lll asdf jkl salad flask fall glad" },
-                    { id: 4, title: "Level 4: Full Home Row", desc: "All home row letters", text: "a sad lad asks all flags shall fall" },
-                    { id: 5, title: "Level 5: Top Row Keys", desc: "Adding E, R, U, I keys", text: "pure white sugar and sweet ripe fruits" },
-                    { id: 6, title: "Level 6: Common Words", desc: "Short daily sentences", text: "the cute cat is sleeping peacefully on the sofa" },
-                    { id: 7, title: "Level 7: Capital Letters", desc: "Using Shift for uppercase", text: "Alice and Bob visited Central Park on Sunday morning" },
-                    { id: 8, title: "Level 8: Punctuation", desc: "Periods, commas, and question marks", text: "Hello, how are you today? Have a truly wonderful day!" },
-                    { id: 9, title: "Level 9: Numbers & Math", desc: "Typing numbers in sentences", text: "We ordered 3 pizzas and 12 cupcakes for 45 dollars." },
-                    { id: 10, title: "Level 10: Typing Master!", desc: "Full speed and agility", text: "The quick brown fox jumps over 3 wooden fences chasing bright blue butterflies!" }
-                ],
-                hp: [
-                    { id: 1, title: "Level 1: Easy Thumbs", desc: "Short 2-3 letter words", text: "he is on my cat dog sun cup" },
-                    { id: 2, title: "Level 2: Quick Greetings", desc: "Everyday hello words", text: "hello good morning afternoon night how are you" },
-                    { id: 3, title: "Level 3: Chatting", desc: "Casual texting messages", text: "where are you now I have arrived at the gate" },
-                    { id: 4, title: "Level 4: Delicious Food", desc: "Thumb coordination practice", text: "hot fresh pizza chocolate ice cream and lemonade" },
-                    { id: 5, title: "Level 5: Full Sentences", desc: "Medium chat sentences", text: "let us meet this evening at the bookstore" },
-                    { id: 6, title: "Level 6: Uppercase Shift", desc: "Capital letters practice", text: "London and Tokyo are famous cities across the world" },
-                    { id: 7, title: "Level 7: Chat Symbols", desc: "Exclamation and question marks", text: "Wow, really? That is completely amazing news!" },
-                    { id: 8, title: "Level 8: Numbers & Price", desc: "Letters and digits combined", text: "Please bring 2 bottles of water and 4 donuts" },
-                    { id: 9, title: "Level 9: Story Time", desc: "Smooth continuous paragraph", text: "The little orange kitten was found curled up asleep in the soft basket." },
-                    { id: 10, title: "Level 10: Thumb Champion!", desc: "Master thumb speed test", text: "Congratulations! You typed 100% fast and accurately using both thumbs!" }
-                ]
-            }
-        };
+        // Bank 100 Level ID & EN (diimpor dari levels.js)
+        const LEVEL_DATA = (window.LEVEL_DATA && window.LEVEL_DATA.id && window.LEVEL_DATA.id.kb && window.LEVEL_DATA.id.kb.length >= 100)
+            ? window.LEVEL_DATA
+            : (window.LEVEL_DATA || { id: { kb: [], hp: [] }, en: { kb: [], hp: [] } });
 
         const TIME_ATTACK_WORDS = {
             id: [
@@ -1272,7 +1243,10 @@
             { id: "combo_15", icon: "🔥", title: "Mode On-Fire", desc: "Raih 15+ combo tanpa salah", title_en: "On-Fire Streak", desc_en: "Reach a 15+ combo streak" },
             { id: "ai_friend", icon: "🤖", title: "Sahabat AI", desc: "Latihan dengan teks buatan Gemini AI", title_en: "AI Companion", desc_en: "Practice with Gemini AI text" },
             { id: "race_winner", icon: "👑", title: "Juara Balap", desc: "Menangkan balapan mengetik online", title_en: "Race Champion", desc_en: "Win an online typing race" },
-            { id: "level_master", icon: "🗺️", title: "Penjelajah Ulung", desc: "Buka semua 10 level petualangan", title_en: "Master Explorer", desc_en: "Unlock all 10 adventure levels" }
+            { id: "lvl_25", icon: "🥉", title: "Penjelajah 25", desc: "Tuntaskan 25 level pertama", title_en: "Explorer 25", desc_en: "Complete the first 25 levels" },
+            { id: "lvl_50", icon: "🥈", title: "Pendaki 50", desc: "Tuntaskan 50 level petualangan", title_en: "Climber 50", desc_en: "Reach level 50" },
+            { id: "lvl_75", icon: "🥇", title: "Pemberani 75", desc: "Tuntaskan 75 level petualangan", title_en: "Adventurer 75", desc_en: "Reach level 75" },
+            { id: "level_master", icon: "👑", title: "Master 100 Level", desc: "Tuntaskan seluruh 100 level petualangan!", title_en: "100 Levels Master", desc_en: "Conquer all 100 adventure levels!" }
         ];
 
         // --- 2. STATE APLIKASI ---
@@ -1281,6 +1255,7 @@
             theme: 'light', // 'light' atau 'dark'
             deviceMode: 'kb', // 'kb' atau 'hp'
             soundEnabled: true,
+            levelTierFilter: 'all',
             
             // Profil Pemain
             profile: {
@@ -1566,7 +1541,7 @@
             if (!p.highScoreWords[lang]) p.highScoreWords[lang] = { kb: 0, hp: 0 };
 
             document.getElementById('home-mascot').innerText = p.mascotEmoji;
-            document.getElementById('home-progress-text').innerText = `${lang === 'en' ? 'Progress' : 'Progres'}: Level ${p.unlockedLevel[lang][mode]} / 10`;
+            document.getElementById('home-progress-text').innerText = `${lang === 'en' ? 'Progress' : 'Progres'}: Level ${p.unlockedLevel[lang][mode]} / 100`;
             document.getElementById('home-highscore-text').innerText = `${lang === 'en' ? 'Record' : 'Rekor'}: ${p.highScoreWords[lang][mode]} ${lang === 'en' ? 'Words' : 'Kata'}`;
             
             updateProfileUI();
@@ -1924,6 +1899,19 @@
         const cloudSignUp = accountSignUp;
         const cloudSignIn = accountSignIn;
         const cloudSignOut = accountSignOut;
+
+        function togglePasswordVisibility() {
+            const input = document.getElementById('cloud-password');
+            const icon = document.getElementById('pwd-toggle-icon');
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerText = '🙈';
+            } else {
+                input.type = 'password';
+                icon.innerText = '👁️';
+            }
+        }
 
         // --- 11. FITUR BALAPAN ONLINE (MULTIPLAYER RACE) ---
         function openRaceLobby() {
@@ -2468,7 +2456,7 @@
             prepareGameScreen();
         }
 
-        // --- 13. MODE LEVEL (ADVENTURE) ---
+        // --- 13. MODE LEVEL (ADVENTURE 1-100) ---
         function openLevelSelect() {
             renderLevelsGrid();
             showScreen('screen-levels');
@@ -2476,39 +2464,85 @@
 
         function renderLevelsGrid() {
             const grid = document.getElementById('levels-grid');
+            if (!grid) return;
             grid.innerHTML = '';
             const lang = state.lang;
             const mode = state.deviceMode;
-            const levels = LEVEL_DATA[lang][mode];
-            const maxUnlocked = state.profile.unlockedLevel[lang][mode];
+            const levels = (LEVEL_DATA[lang] && LEVEL_DATA[lang][mode]) || [];
+            const maxUnlocked = (state.profile.unlockedLevel[lang] && state.profile.unlockedLevel[lang][mode]) || 1;
+            const filter = state.levelTierFilter || 'all';
 
             levels.forEach(lvl => {
+                // Filter berdasarkan tier jika dipilih
+                if (filter === 't1' && (lvl.id < 1 || lvl.id > 20)) return;
+                if (filter === 't2' && (lvl.id < 21 || lvl.id > 40)) return;
+                if (filter === 't3' && (lvl.id < 41 || lvl.id > 60)) return;
+                if (filter === 't4' && (lvl.id < 61 || lvl.id > 80)) return;
+                if (filter === 't5' && (lvl.id < 81 || lvl.id > 100)) return;
+
                 const isUnlocked = lvl.id <= maxUnlocked;
                 const isCompleted = lvl.id < maxUnlocked;
 
                 const card = document.createElement('div');
+                card.id = `lvl-card-${lvl.id}`;
                 if (isUnlocked) {
                     card.className = `btn-3d cursor-pointer rounded-2xl p-3 border-3 flex flex-col justify-between text-center transition ${
                         isCompleted 
                         ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
-                        : 'bg-sky-50 border-sky-400 text-sky-900'
+                        : 'bg-sky-50 border-sky-400 text-sky-900 ring-2 ring-sky-300'
                     }`;
                     card.onclick = () => startLevel(lvl.id);
                     card.innerHTML = `
-                        <div class="text-xs font-bold uppercase tracking-wider opacity-70">Level ${lvl.id}</div>
+                        <div class="text-[11px] font-bold uppercase tracking-wider opacity-70">Level ${lvl.id}</div>
                         <div class="text-2xl my-1">${isCompleted ? '⭐' : '🎯'}</div>
                         <div class="text-xs font-bold line-clamp-1">${lvl.title.split(': ')[1] || lvl.title}</div>
                     `;
                 } else {
                     card.className = "rounded-2xl p-3 border-2 border-stone-200 bg-stone-100 text-stone-400 flex flex-col justify-between text-center opacity-75 cursor-not-allowed";
                     card.innerHTML = `
-                        <div class="text-xs font-bold">Level ${lvl.id}</div>
+                        <div class="text-[11px] font-bold">Level ${lvl.id}</div>
                         <div class="text-2xl my-1">🔒</div>
                         <div class="text-[11px]">${lang === 'en' ? 'Locked' : 'Terkunci'}</div>
                     `;
                 }
                 grid.appendChild(card);
             });
+        }
+
+        function setLevelTierFilter(tier) {
+            state.levelTierFilter = tier;
+            const tierIds = ['all', 't1', 't2', 't3', 't4', 't5'];
+            tierIds.forEach(t => {
+                const btn = document.getElementById(`tier-btn-${t}`);
+                if (!btn) return;
+                if (t === tier) {
+                    btn.className = "px-2.5 py-1 text-xs font-bold rounded-xl bg-sky-600 text-white shadow-xs";
+                } else {
+                    btn.className = "px-2.5 py-1 text-xs font-bold rounded-xl bg-white text-stone-700 hover:bg-sky-100";
+                }
+            });
+            renderLevelsGrid();
+        }
+
+        function jumpToCurrentLevel() {
+            const lang = state.lang;
+            const mode = state.deviceMode;
+            const currentLvl = (state.profile.unlockedLevel[lang] && state.profile.unlockedLevel[lang][mode]) || 1;
+            let tier = 'all';
+            if (currentLvl <= 20) tier = 't1';
+            else if (currentLvl <= 40) tier = 't2';
+            else if (currentLvl <= 60) tier = 't3';
+            else if (currentLvl <= 80) tier = 't4';
+            else tier = 't5';
+            setLevelTierFilter(tier);
+            setTimeout(() => {
+                const activeCard = document.getElementById(`lvl-card-${currentLvl}`);
+                if (activeCard) {
+                    activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    activeCard.classList.add('animate-bounce');
+                    setTimeout(() => activeCard.classList.remove('animate-bounce'), 1200);
+                }
+            }, 120);
         }
 
         function startLevel(levelId) {
@@ -2819,13 +2853,17 @@
                 document.getElementById('res-third-val').innerText = `${elapsedSec}s`;
                 document.getElementById('res-third-sub').innerText = lang === 'en' ? 'Seconds' : 'Detik';
 
-                if (state.currentLevelId === state.profile.unlockedLevel[lang][mode] && state.currentLevelId < 10) {
+                if (state.currentLevelId === state.profile.unlockedLevel[lang][mode] && state.currentLevelId < 100) {
                     state.profile.unlockedLevel[lang][mode]++;
-                    if (state.profile.unlockedLevel[lang][mode] === 10) checkBadge('level_master');
+                    const newUnlocked = state.profile.unlockedLevel[lang][mode];
+                    if (newUnlocked >= 25) checkBadge('lvl_25');
+                    if (newUnlocked >= 50) checkBadge('lvl_50');
+                    if (newUnlocked >= 75) checkBadge('lvl_75');
+                    if (newUnlocked >= 100) checkBadge('level_master');
                     saveProfile();
                 }
 
-                if (state.currentLevelId < 10) {
+                if (state.currentLevelId < 100) {
                     btnNext.classList.remove('hidden');
                     btnNext.innerText = `${lang === 'en' ? 'Level' : 'Level'} ${state.currentLevelId + 1} ➔ [Enter]`;
                     btnNext.onclick = nextLevel;
@@ -2833,7 +2871,9 @@
                 } else {
                     btnNext.classList.add('hidden');
                     enterHint.classList.add('hidden');
-                    document.getElementById('result-subtitle').innerText = `LUAR BIASA! Semua level berhasil diselesaikan! 👑`;
+                    document.getElementById('result-subtitle').innerText = lang === 'en' 
+                        ? `LEGENDARY! You conquered all 100 levels! 👑` 
+                        : `LUAR BIASA! Kamu menaklukkan seluruh 100 level! 👑`;
                 }
 
             } else if (state.gameType === 'ai') {
@@ -2889,7 +2929,7 @@
         }
 
         function nextLevel() {
-            if (state.currentLevelId < 10) startLevel(state.currentLevelId + 1);
+            if (state.currentLevelId < 100) startLevel(state.currentLevelId + 1);
         }
 
         // --- 16. VISUAL KEYBOARD GUIDE ---
