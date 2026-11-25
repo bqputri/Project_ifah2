@@ -34,6 +34,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- Canvas Confetti untuk Perayaan -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Firebase SDK (v10 compat) untuk Cloud Auth & Realtime Database Multiplayer -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
     <!-- Supabase JS Client untuk Autentikasi & Realtime Multiplayer (Opsional Cloud Sync) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- 100 Level Dataset -->
@@ -478,8 +482,8 @@
                         <h3 class="font-bold text-sky-900 text-base" data-i18n="raceJoinTitle">Gabung Room</h3>
                         <p class="text-xs text-sky-700 mt-1 mb-3" data-i18n="raceJoinDesc">Masukkan kode room yang dibagikan oleh temanmu.</p>
                         
-                        <label class="block text-[11px] font-bold text-sky-800 mb-1" data-i18n="raceCodeLabel">Kode Room (5 Huruf):</label>
-                        <input type="text" id="race-join-code-input" placeholder="Misal: PAW88" maxlength="5" class="w-full text-center uppercase tracking-widest font-black text-lg p-2 rounded-xl border-2 border-sky-300 bg-white text-stone-800 mb-3">
+                        <label class="block text-[11px] font-bold text-sky-800 mb-1" data-i18n="raceCodeLabel">Kode Room (6 Huruf/Karakter):</label>
+                        <input type="text" id="race-join-code-input" placeholder="Misal: PAW123" maxlength="8" class="w-full text-center uppercase tracking-widest font-black text-lg p-2 rounded-xl border-2 border-sky-300 bg-white text-stone-800 mb-3">
                     </div>
                     <button onclick="joinRaceRoom()" id="btn-join-room" class="btn-3d w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs sm:text-sm rounded-xl border border-sky-700" data-i18n="btnJoinRoom">
                         🚀 Masuk ke Room
@@ -549,10 +553,13 @@
                 <p class="text-xs sm:text-sm text-emerald-800 font-medium mb-3" data-i18n="raceWaitingHint">
                     Bagikan kode room ke temanmu. Host dapat menekan tombol di bawah untuk memulai balapan!
                 </p>
-                <div class="flex justify-center gap-3">
+                <div class="flex flex-col items-center justify-center gap-2">
                     <button id="btn-start-race" onclick="startRaceCountdown()" class="btn-3d px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm rounded-xl border border-emerald-600" data-i18n="btnStartRace">
                         🚀 Mulai Balapan Sekarang!
                     </button>
+                    <span id="race-guest-waiting-msg" class="hidden text-xs font-bold text-emerald-700 animate-pulse">
+                        ⏳ Menunggu Host memulai balapan...
+                    </span>
                 </div>
             </div>
 
@@ -894,49 +901,68 @@
                 <!-- Tab 4: Akun & Cloud Sync -->
                 <div id="tab-content-cloud" class="hidden flex flex-col gap-3 text-xs">
                     <div class="p-3 bg-purple-50 rounded-2xl border border-purple-200 text-purple-900">
-                        <strong class="block font-bold text-sm mb-1" data-i18n="cloudTitle">👤 Akun & Penyimpanan Progres</strong>
+                        <strong class="block font-bold text-sm mb-1" data-i18n="cloudTitle">☁️ Akun Cloud & Sinkronisasi Antar-Perangkat</strong>
                         <p class="text-xs text-purple-700" data-i18n="cloudDesc">
-                            Daftar atau masuk untuk mengamankan data progres, skor WPM, dan lencana Anda. Bekerja langsung secara instan!
+                            Didukung Firebase Authentication & Realtime Database. Skor WPM, riwayat permainan, level, dan lencana otomatis tersimpan di cloud!
                         </p>
                     </div>
 
                     <!-- Kotak Pesan Status / Alert -->
                     <div id="account-msg-box" class="hidden text-center"></div>
 
+                    <!-- Form Login / Register -->
                     <div id="supabase-auth-form" class="flex flex-col gap-2">
-                        <input type="text" id="cloud-email" placeholder="Email atau Nama Pengguna" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
+                        <input type="text" id="cloud-email" placeholder="Email Anda (contoh: kamu@gmail.com)" class="p-2.5 rounded-xl border border-stone-300 text-stone-800 bg-white">
                         <div class="relative flex items-center">
-                            <input type="password" id="cloud-password" onkeydown="if(event.key==='Enter') accountSignIn()" placeholder="Kata Sandi (minimal 4 karakter)" class="w-full p-2.5 pr-10 rounded-xl border border-stone-300 text-stone-800 bg-white focus:outline-none focus:border-purple-400">
+                            <input type="password" id="cloud-password" onkeydown="if(event.key==='Enter') accountSignIn()" placeholder="Kata Sandi (minimal 6 karakter)" class="w-full p-2.5 pr-10 rounded-xl border border-stone-300 text-stone-800 bg-white focus:outline-none focus:border-purple-400">
                             <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 text-stone-400 hover:text-stone-600 focus:outline-none text-base cursor-pointer" title="Lihat/Sembunyikan Kata Sandi">
                                 <span id="pwd-toggle-icon">👁️</span>
                             </button>
                         </div>
                         
                         <div class="flex gap-2 mt-1">
-                            <button onclick="accountSignIn()" class="btn-3d flex-1 py-2 bg-purple-600 text-white font-bold rounded-xl" data-i18n="btnSignIn">
+                            <button onclick="accountSignIn()" class="btn-3d flex-1 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl" data-i18n="btnSignIn">
                                 🔑 Masuk (Sign In)
                             </button>
-                            <button onclick="accountSignUp()" class="btn-3d flex-1 py-2 bg-stone-100 text-stone-800 font-bold rounded-xl border border-stone-300" data-i18n="btnSignUp">
+                            <button onclick="accountSignUp()" class="btn-3d flex-1 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold rounded-xl border border-stone-300" data-i18n="btnSignUp">
                                 📝 Daftar Baru
                             </button>
                         </div>
-                    </div>
 
-                    <div id="cloud-user-logged-in" class="hidden p-3 bg-emerald-50 rounded-xl border border-emerald-300 flex justify-between items-center">
-                        <div>
-                            <span class="text-emerald-800 font-bold block text-sm" id="cloud-logged-email">user@email.com</span>
-                            <span class="text-[10px] text-emerald-600 font-bold" id="cloud-logged-type">👤 Akun Aktif (Lokal)</span>
+                        <!-- Tombol Masuk dengan Google -->
+                        <div class="relative flex items-center justify-center my-1">
+                            <div class="border-t border-stone-200 w-full"></div>
+                            <span class="bg-white px-2 text-[10px] text-stone-400 font-bold uppercase">atau</span>
+                            <div class="border-t border-stone-200 w-full"></div>
                         </div>
-                        <button onclick="accountSignOut()" class="px-2.5 py-1 bg-white hover:bg-rose-50 text-rose-600 font-bold rounded-lg border border-rose-200 text-xs">
-                            Keluar
+                        <button type="button" onclick="accountGoogleSignIn()" id="btn-google-signin" class="btn-3d w-full py-2 bg-white hover:bg-stone-50 text-stone-700 font-bold rounded-xl border border-stone-300 flex items-center justify-center gap-2 text-xs transition">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                            <span>Masuk dengan Google (Google Sign-In)</span>
                         </button>
                     </div>
 
-                    <!-- Catatan Opsional Supabase -->
+                    <!-- Tampilan Saat Pengguna Sedang Login -->
+                    <div id="cloud-user-logged-in" class="hidden p-3 bg-emerald-50 rounded-xl border border-emerald-300 flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-emerald-900 font-bold block text-sm" id="cloud-logged-email">user@email.com</span>
+                                <span class="text-[10px] text-emerald-700 font-bold" id="cloud-logged-type">☁️ Akun Cloud Aktif</span>
+                            </div>
+                            <button onclick="accountSignOut()" class="px-3 py-1 bg-white hover:bg-rose-50 text-rose-600 font-bold rounded-lg border border-rose-200 text-xs shadow-2xs">
+                                🚪 Keluar (Logout)
+                            </button>
+                        </div>
+                        <div class="text-[11px] text-emerald-800 bg-white/70 p-2 rounded-lg border border-emerald-200 flex items-center justify-between">
+                            <span>Status Sinkronisasi:</span>
+                            <span class="font-bold text-emerald-700">🟢 Terhubung & Tersimpan Otomatis</span>
+                        </div>
+                    </div>
+
+                    <!-- Catatan Pengaturan Firebase -->
                     <details class="text-[11px] text-stone-500 bg-stone-50 p-2.5 rounded-xl border border-stone-200 mt-1">
-                        <summary class="font-bold cursor-pointer text-stone-600">ℹ️ Ingin Sinkronisasi Cloud Antar-Perangkat? (Opsional)</summary>
+                        <summary class="font-bold cursor-pointer text-stone-600">ℹ️ Info Sinkronisasi Cloud Antar-Perangkat (Firebase)</summary>
                         <p class="mt-1 leading-relaxed">
-                            Secara default, akun dan progres Anda sudah otomatis tersimpan aman di browser ini. Jika ingin sinkronisasi multi-perangkat via Supabase, cukup tambahkan <code class="bg-stone-200 px-1 py-0.5 rounded">SUPABASE_URL</code> dan <code class="bg-stone-200 px-1 py-0.5 rounded">SUPABASE_ANON_KEY</code> di Vercel.
+                            Progresmu otomatis tersimpan di cloud Firebase sehingga tidak hilang meskipun berganti HP, laptop, atau browser. Jika Firebase belum dikonfigurasi, progres tetap aman tersimpan di browser lokalmu.
                         </p>
                     </details>
                 </div>
@@ -1324,6 +1350,32 @@
             { id: "level_master", icon: "👑", title: "Master 100 Level", desc: "Tuntaskan seluruh 100 level petualangan!", title_en: "100 Levels Master", desc_en: "Conquer all 100 adventure levels!" }
         ];
 
+        const DEFAULT_RACE_TEXTS = {
+            id: [
+                "Kucing oranye yang lincah itu melompat melewati pagar kayu sambil mengejar kupu-kupu warna-warni di taman bunga yang indah.",
+                "Matahari pagi bersinar hangat saat burung-burung kecil berkicau merdu di dahan pohon rindang dekat jendela kamarku.",
+                "Semangat pantang menyerah adalah kunci utama dalam mencapai impian besar dan meraih kesuksesan di masa depan.",
+                "Sepiring nasi goreng hangat dengan telur mata sapi dan teh manis melengkapi sarapan yang nikmat di hari Minggu.",
+                "Kecepatan jari-jemari yang lincah menari di atas papan ketik menghasilkan kata demi kata tanpa celah kesalahan."
+            ],
+            en: [
+                "The quick brown fox jumps gracefully over the lazy dog while sweet morning birds sing on the green branches.",
+                "Small positive actions practiced consistently every single day create extraordinary achievements in life.",
+                "A cute fluffy kitten chased a glowing butterfly through the sunny flower garden with great joy and excitement.",
+                "Technology brings people together from all around the world to learn, collaborate, and share happiness.",
+                "Mastering typing with accuracy and speed unlocks endless possibilities in work, study, and daily communication."
+            ]
+        };
+
+        function generateRaceRoomCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
         // --- 2. STATE APLIKASI ---
         let state = {
             lang: 'id', // 'id' atau 'en'
@@ -1375,22 +1427,95 @@
             racePollingInterval: null,
             raceText: "",
             raceCountdownTimer: null,
-            raceChannel: null // Supabase realtime channel jika ada
+            raceRoomRef: null,
+            raceThrottledTimer: null
         };
 
-        // --- 3. SUPABASE CLIENT & CLOUD SYNC ---
+        // --- 3. FIREBASE CLIENT & CLOUD SYNC ---
+        let firebaseApp = null;
+        let firebaseAuth = null;
+        let firebaseDb = null;
+        let currentFirebaseUser = null;
         let supabaseClient = null;
+
         async function initCloudConfig() {
             try {
                 const res = await fetch('/api/config');
                 const data = await res.json();
+
+                // Inisialisasi Firebase jika terkonfigurasi di server/Vercel
+                if (data.success && data.firebaseConfigured && data.firebaseConfig && window.firebase) {
+                    if (!firebase.apps || !firebase.apps.length) {
+                        firebaseApp = firebase.initializeApp(data.firebaseConfig);
+                    } else {
+                        firebaseApp = firebase.app();
+                    }
+                    firebaseAuth = firebase.auth();
+                    if (data.firebaseConfig.databaseURL) {
+                        firebaseDb = firebase.database();
+                    }
+                    console.log("🔥 Firebase Cloud Aktif: Auth & Realtime Database siap!");
+                    setupFirebaseAuthListener();
+                }
+
+                // Fallback legacy Supabase jika ada
                 if (data.success && data.supabaseConfigured && window.supabase) {
                     supabaseClient = window.supabase.createClient(data.supabaseUrl, data.supabaseAnonKey);
                 }
             } catch (e) {
-                console.log("Cloud config fallback to local storage:", e.message);
+                console.log("Cloud config fallback ke penyimpanan lokal:", e.message);
             } finally {
                 updateCloudUIStatus();
+            }
+        }
+
+        function setupFirebaseAuthListener() {
+            if (!firebaseAuth) return;
+            firebaseAuth.onAuthStateChanged(async (user) => {
+                currentFirebaseUser = user;
+                if (user) {
+                    console.log("👤 Firebase User Login:", user.displayName || user.email || user.uid);
+                    await syncProfileFromFirebase(user.uid);
+                } else {
+                    console.log("👤 Mode Tamu / Firebase User Logout");
+                }
+                updateCloudUIStatus();
+                updateHomeUI();
+            });
+        }
+
+        async function syncProfileFromFirebase(uid) {
+            if (!firebaseDb) return;
+            try {
+                const snap = await firebaseDb.ref('users/' + uid + '/profile').once('value');
+                const cloudProfile = snap.val();
+                if (cloudProfile) {
+                    // Gabungkan profil lokal dengan cloud, pilih data yang lebih mutakhir / skor tertinggi
+                    state.profile = {
+                        ...state.profile,
+                        ...cloudProfile,
+                        bestWpm: Math.max(state.profile.bestWpm || 0, cloudProfile.bestWpm || 0),
+                        totalGames: Math.max(state.profile.totalGames || 0, cloudProfile.totalGames || 0),
+                        raceWins: Math.max(state.profile.raceWins || 0, cloudProfile.raceWins || 0)
+                    };
+                    saveProfile(false);
+                    updateProfileUI();
+                    console.log("☁️ Progres berhasil dimuat dari Firebase Cloud.");
+                } else {
+                    // Simpan profil yang ada sekarang ke cloud pertama kali
+                    await firebaseDb.ref('users/' + uid + '/profile').set(state.profile);
+                }
+            } catch (e) {
+                console.warn("Gagal memuat profil Firebase:", e.message);
+            }
+        }
+
+        async function saveProfileToFirebase() {
+            if (!currentFirebaseUser || !firebaseDb) return;
+            try {
+                await firebaseDb.ref('users/' + currentFirebaseUser.uid + '/profile').set(state.profile);
+            } catch (e) {
+                console.warn("Gagal menyimpan profil ke Firebase:", e.message);
             }
         }
 
@@ -1449,6 +1574,18 @@
             updateProfileBadges();
 
             initCloudConfig();
+
+            // Cek jika membuka lewat link undangan room balapan ?room=KODE
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoRoom = urlParams.get('room');
+            if (autoRoom) {
+                setTimeout(() => {
+                    openRaceLobby();
+                    const input = document.getElementById('race-join-code-input');
+                    if (input) input.value = autoRoom.toUpperCase();
+                    showLobbyAlert(`Kamu diundang balapan di room: ${autoRoom.toUpperCase()}! Klik tombol "Masuk ke Room" di bawah.`, 'emerald');
+                }, 400);
+            }
         };
 
         function loadSavedSettings() {
@@ -1467,9 +1604,12 @@
             }
         }
 
-        function saveProfile() {
+        function saveProfile(syncCloud = true) {
             localStorage.setItem('typepaws_profile', JSON.stringify(state.profile));
             updateProfileUI();
+            if (syncCloud && currentFirebaseUser && firebaseDb) {
+                saveProfileToFirebase();
+            }
         }
 
         // --- 6. DARK MODE TOGGLE ---
@@ -1819,7 +1959,20 @@
             const loggedEmail = document.getElementById('cloud-logged-email');
             const loggedType = document.getElementById('cloud-logged-type');
 
-            // 1. Cek jika sesi Supabase aktif
+            // 1. Cek jika sesi Firebase Auth aktif (Prioritas Utama)
+            if (currentFirebaseUser) {
+                form.classList.add('hidden');
+                logged.classList.remove('hidden');
+                const displayName = currentFirebaseUser.displayName || '';
+                const email = currentFirebaseUser.email || '';
+                loggedEmail.innerText = displayName ? `${displayName} (${email})` : (email || 'Pengguna Cloud');
+                if (loggedType) loggedType.innerText = "☁️ Akun Cloud Terhubung (Firebase Auth & Realtime Database)";
+                badge.innerText = "☁️ Firebase Cloud Aktif";
+                badge.className = "text-[10px] text-purple-700 font-bold bg-purple-100 px-2 py-0.5 rounded-full border border-purple-300";
+                return;
+            }
+
+            // 2. Cek jika sesi Supabase aktif (Legacy)
             if (supabaseClient) {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
@@ -1833,7 +1986,7 @@
                 }
             }
 
-            // 2. Cek jika sesi Akun Lokal aktif
+            // 3. Cek jika sesi Akun Lokal aktif
             const currentSession = localStorage.getItem('typepaws_session');
             if (currentSession) {
                 const accounts = getStoredAccounts();
@@ -1849,11 +2002,24 @@
                 }
             }
 
-            // 3. Mode Tamu
+            // 4. Mode Tamu
             form.classList.remove('hidden');
             logged.classList.add('hidden');
-            badge.innerText = "📱 Mode Tamu / Lokal";
+            badge.innerText = firebaseAuth ? "📱 Mode Tamu (Belum Login Cloud)" : "📱 Mode Tamu / Offline";
             badge.className = "text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200";
+        }
+
+        function getFirebaseFriendlyError(err) {
+            const code = err.code || '';
+            if (code === 'auth/invalid-email') return "Format email tidak valid.";
+            if (code === 'auth/user-not-found') return "Akun belum terdaftar. Silakan klik '📝 Daftar Baru'.";
+            if (code === 'auth/wrong-password') return "Kata sandi salah. Silakan periksa kembali.";
+            if (code === 'auth/invalid-credential') return "Email atau kata sandi tidak cocok. Silakan periksa kembali.";
+            if (code === 'auth/email-already-in-use') return "Email/Akun ini sudah terdaftar. Silakan klik '🔑 Masuk (Sign In)'.";
+            if (code === 'auth/weak-password') return "Kata sandi terlalu pendek/lemah (minimal 6 karakter).";
+            if (code === 'auth/popup-closed-by-user') return "Jendela login Google ditutup sebelum proses selesai.";
+            if (code === 'auth/network-request-failed') return "Koneksi internet bermasalah. Periksa jaringan Anda.";
+            return err.message || "Terjadi kendala autentikasi.";
         }
 
         async function accountSignUp() {
@@ -1867,12 +2033,38 @@
                 return;
             }
 
+            // 1. Firebase Auth (Cloud Permanen)
+            if (firebaseAuth) {
+                if (password.length < 6) {
+                    showAccountAlert("Kata sandi cloud Firebase minimal 6 karakter.", 'rose');
+                    return;
+                }
+                try {
+                    const validEmail = email.includes('@') ? email : `${email.toLowerCase().replace(/[^a-z0-9]/g, '')}@typepaws.app`;
+                    const cred = await firebaseAuth.createUserWithEmailAndPassword(validEmail, password);
+                    const user = cred.user;
+                    const nickname = email.includes('@') ? email.split('@')[0] : email;
+                    await user.updateProfile({ displayName: nickname });
+                    state.profile.name = nickname;
+
+                    if (firebaseDb) {
+                        await firebaseDb.ref('users/' + user.uid + '/profile').set(state.profile);
+                    }
+                    showAccountAlert("🎉 Berhasil mendaftar di Cloud Firebase! Akun dan progresmu kini aman tersinkron antar-perangkat.", 'emerald');
+                    playSound('win');
+                    return;
+                } catch (err) {
+                    showAccountAlert("Pendaftaran Firebase gagal: " + getFirebaseFriendlyError(err), 'rose');
+                    return;
+                }
+            }
+
             if (password.length < 4) {
                 showAccountAlert("Kata sandi minimal 4 karakter.", 'rose');
                 return;
             }
 
-            // Jika Supabase aktif, daftarkan ke Supabase
+            // 2. Jika Supabase aktif, daftarkan ke Supabase
             if (supabaseClient) {
                 const { error } = await supabaseClient.auth.signUp({ email, password });
                 if (error) {
@@ -1884,7 +2076,7 @@
                 return;
             }
 
-            // Fallback Akun Lokal (Bekerja langsung tanpa perlu setup server pihak ketiga)
+            // 3. Fallback Akun Lokal
             const accounts = getStoredAccounts();
             const key = email.toLowerCase();
 
@@ -1925,7 +2117,21 @@
                 return;
             }
 
-            // Jika Supabase aktif, login via Supabase
+            // 1. Firebase Auth (Cloud Login)
+            if (firebaseAuth) {
+                try {
+                    const validEmail = email.includes('@') ? email : `${email.toLowerCase().replace(/[^a-z0-9]/g, '')}@typepaws.app`;
+                    await firebaseAuth.signInWithEmailAndPassword(validEmail, password);
+                    showAccountAlert("✅ Berhasil masuk ke Cloud Firebase! Memuat progres permainanmu...", 'emerald');
+                    playSound('key');
+                    return;
+                } catch (err) {
+                    showAccountAlert("Gagal masuk Firebase: " + getFirebaseFriendlyError(err), 'rose');
+                    return;
+                }
+            }
+
+            // 2. Jika Supabase aktif, login via Supabase
             if (supabaseClient) {
                 const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) {
@@ -1937,7 +2143,7 @@
                 return;
             }
 
-            // Login Akun Lokal
+            // 3. Login Akun Lokal
             const accounts = getStoredAccounts();
             const key = email.toLowerCase();
             const acc = accounts[key];
@@ -1965,12 +2171,33 @@
             playSound('key');
         }
 
+        async function accountGoogleSignIn() {
+            if (!firebaseAuth) {
+                showAccountAlert("Firebase belum dikonfigurasi di file .env server. Silakan gunakan pendaftaran Email/Password lokal.", 'rose');
+                return;
+            }
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await firebaseAuth.signInWithPopup(provider);
+                const user = result.user;
+                if (user.displayName) state.profile.name = user.displayName;
+                showAccountAlert(`✅ Berhasil masuk dengan Google (${user.displayName || user.email})!`, 'emerald');
+                playSound('win');
+            } catch (err) {
+                showAccountAlert("Login Google gagal: " + getFirebaseFriendlyError(err), 'rose');
+            }
+        }
+
         async function accountSignOut() {
+            if (firebaseAuth) {
+                await firebaseAuth.signOut();
+            }
             if (supabaseClient) {
                 await supabaseClient.auth.signOut();
             }
             localStorage.removeItem('typepaws_session');
-            showAccountAlert("Berhasil keluar dari akun.", 'emerald');
+            currentFirebaseUser = null;
+            showAccountAlert("Berhasil keluar dari akun. Mode Tamu aktif.", 'emerald');
             updateCloudUIStatus();
             playSound('key');
         }
@@ -1993,7 +2220,7 @@
             }
         }
 
-        // --- 11. FITUR BALAPAN ONLINE (MULTIPLAYER RACE) ---
+        // --- 11. FITUR BALAPAN ONLINE (REAL-TIME FIREBASE & SERVERLESS) ---
         function openRaceLobby() {
             showScreen('screen-race-lobby');
             document.getElementById('race-lobby-alert').classList.add('hidden');
@@ -2005,6 +2232,63 @@
             btn.innerText = "Membuat Room...";
 
             const lang = document.getElementById('race-create-lang').value || state.lang;
+            const texts = (DEFAULT_RACE_TEXTS && DEFAULT_RACE_TEXTS[lang]) ? DEFAULT_RACE_TEXTS[lang] : DEFAULT_RACE_TEXTS.id;
+            const chosenText = texts[Math.floor(Math.random() * texts.length)];
+            const myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
+            const hostPlayer = {
+                id: myPlayerId,
+                name: (state.profile.name || 'Pemain 1').slice(0, 16),
+                mascot: state.profile.mascotEmoji || '🐱',
+                progress: 0,
+                wpm: 0,
+                accuracy: 100,
+                isReady: true,
+                isFinished: false,
+                finishRank: null,
+                finishTime: null,
+                isHost: true
+            };
+
+            // 1. Prioritas: Firebase Realtime Database (Bekerja Realtime Antar-Perangkat / Cross-Device)
+            if (firebaseDb) {
+                try {
+                    let newCode = generateRaceRoomCode();
+                    const roomRef = firebaseDb.ref('rooms/' + newCode);
+                    const initialRoom = {
+                        code: newCode,
+                        hostId: myPlayerId,
+                        status: 'waiting', // 'waiting', 'countdown', 'racing', 'finished'
+                        countdown: 3,
+                        startTime: null,
+                        targetText: chosenText,
+                        lang: lang,
+                        finishedCount: 0,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        players: {
+                            [myPlayerId]: hostPlayer
+                        }
+                    };
+
+                    await roomRef.set(initialRoom);
+                    roomRef.child('players/' + myPlayerId).onDisconnect().remove();
+
+                    state.raceRoom = {
+                        ...initialRoom,
+                        players: [hostPlayer]
+                    };
+                    state.racePlayerId = myPlayerId;
+                    enterRaceRoomScreen();
+                    subscribeFirebaseRaceRoom(newCode);
+                    return;
+                } catch (err) {
+                    console.warn("Gagal membuat room Firebase, beralih ke fallback serverless:", err);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = I18N[state.lang]?.btnCreateRoom || "✨ Buat Room Sekarang";
+                }
+            }
+
+            // 2. Fallback: API Serverless (/api/rooms) jika Firebase belum diisi
             try {
                 const res = await fetch('/api/rooms', {
                     method: 'POST',
@@ -2025,25 +2309,83 @@
                 enterRaceRoomScreen();
 
             } catch (err) {
-                showLobbyAlert(err.message, 'rose');
+                showLobbyAlert("Gagal membuat room: " + err.message, 'rose');
             } finally {
                 btn.disabled = false;
-                btn.innerText = I18N[state.lang].btnCreateRoom;
+                btn.innerText = I18N[state.lang]?.btnCreateRoom || "✨ Buat Room Sekarang";
             }
         }
 
-        async function joinRaceRoom() {
+        async function joinRaceRoom(codeArg) {
             const codeInput = document.getElementById('race-join-code-input');
-            const code = codeInput.value.trim().toUpperCase();
-            if (!code) {
-                showLobbyAlert("Masukkan kode room terlebih dahulu.", 'rose');
+            const code = (codeArg || (codeInput ? codeInput.value : '') || '').trim().toUpperCase();
+            if (!code || code.length < 4) {
+                showLobbyAlert("Harap masukkan kode room yang valid.", 'rose');
                 return;
             }
 
             const btn = document.getElementById('btn-join-room');
-            btn.disabled = true;
-            btn.innerText = "Bergabung...";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "Bergabung...";
+            }
 
+            const myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
+            const myPlayerData = {
+                id: myPlayerId,
+                name: (state.profile.name || 'Pemain').slice(0, 16),
+                mascot: state.profile.mascotEmoji || '🐰',
+                progress: 0,
+                wpm: 0,
+                accuracy: 100,
+                isReady: true,
+                isFinished: false,
+                finishRank: null,
+                finishTime: null,
+                isHost: false
+            };
+
+            // 1. Firebase Realtime Database
+            if (firebaseDb) {
+                try {
+                    const snap = await firebaseDb.ref('rooms/' + code).once('value');
+                    if (!snap.exists()) {
+                        showLobbyAlert("Kode room tidak ditemukan atau sudah ditutup.", 'rose');
+                        return;
+                    }
+                    const roomData = snap.val();
+                    if (roomData.status === 'racing') {
+                        showLobbyAlert("Balapan di room ini sudah berlangsung!", 'rose');
+                        return;
+                    }
+                    const currentPlayers = roomData.players ? Object.values(roomData.players) : [];
+                    if (currentPlayers.length >= 6) {
+                        showLobbyAlert("Room sudah penuh (maksimal 6 pemain).", 'rose');
+                        return;
+                    }
+
+                    await firebaseDb.ref(`rooms/${code}/players/${myPlayerId}`).set(myPlayerData);
+                    firebaseDb.ref(`rooms/${code}/players/${myPlayerId}`).onDisconnect().remove();
+
+                    state.raceRoom = {
+                        ...roomData,
+                        players: [...currentPlayers, myPlayerData]
+                    };
+                    state.racePlayerId = myPlayerId;
+                    enterRaceRoomScreen();
+                    subscribeFirebaseRaceRoom(code);
+                    return;
+                } catch (err) {
+                    console.warn("Gagal join Firebase, mencoba fallback:", err);
+                } finally {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = I18N[state.lang]?.btnJoinRoom || "🚀 Masuk ke Room";
+                    }
+                }
+            }
+
+            // 2. Fallback /api/rooms
             try {
                 const res = await fetch('/api/rooms', {
                     method: 'POST',
@@ -2066,9 +2408,48 @@
             } catch (err) {
                 showLobbyAlert(err.message, 'rose');
             } finally {
-                btn.disabled = false;
-                btn.innerText = I18N[state.lang].btnJoinRoom;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = I18N[state.lang]?.btnJoinRoom || "🚀 Masuk ke Room";
+                }
             }
+        }
+
+        function subscribeFirebaseRaceRoom(code) {
+            if (!firebaseDb) return;
+            if (state.raceRoomRef) {
+                state.raceRoomRef.off();
+            }
+
+            state.raceRoomRef = firebaseDb.ref('rooms/' + code);
+            state.raceRoomRef.on('value', (snapshot) => {
+                const raw = snapshot.val();
+                if (!raw) {
+                    if (!document.getElementById('screen-race-room').classList.contains('hidden')) {
+                        alert("Room balapan telah ditutup atau dihapus.");
+                        leaveRaceRoom();
+                    }
+                    return;
+                }
+
+                const prevStatus = state.raceRoom ? state.raceRoom.status : 'waiting';
+                const playersArr = raw.players ? Object.values(raw.players) : [];
+
+                state.raceRoom = {
+                    ...raw,
+                    players: playersArr
+                };
+
+                // Perbarui lintasan balap dan posisi kucing semua pemain
+                renderRaceLanes();
+
+                // Sinkronisasi status countdown
+                if (prevStatus === 'waiting' && raw.status === 'countdown') {
+                    triggerRaceCountdown(raw.countdown || 3);
+                } else if (raw.status === 'finished') {
+                    showRacePodium();
+                }
+            });
         }
 
         function showLobbyAlert(msg, color) {
@@ -2081,28 +2462,33 @@
         function enterRaceRoomScreen() {
             showScreen('screen-race-room');
             document.getElementById('race-display-room-code').innerText = state.raceRoom.code;
-            
-            // Cek apakah pemain adalah Host
+
             const isHost = state.raceRoom.hostId === state.racePlayerId;
             const startBtn = document.getElementById('btn-start-race');
-            if (isHost) {
-                startBtn.classList.remove('hidden');
-            } else {
-                startBtn.classList.add('hidden');
-                document.getElementById('btn-start-race').parentElement.innerHTML = `
-                    <span class="text-xs font-bold text-emerald-700 animate-pulse">Menunggu Host memulai balapan...</span>
-                `;
+            const guestMsg = document.getElementById('race-guest-waiting-msg');
+
+            if (startBtn && guestMsg) {
+                if (isHost) {
+                    startBtn.classList.remove('hidden');
+                    guestMsg.classList.add('hidden');
+                } else {
+                    startBtn.classList.add('hidden');
+                    guestMsg.classList.remove('hidden');
+                }
             }
 
             renderRaceLanes();
-            startRacePolling();
+            if (!state.raceRoomRef) {
+                startRacePolling();
+            }
         }
 
         function copyRoomCode() {
             if (!state.raceRoom) return;
-            navigator.clipboard.writeText(state.raceRoom.code);
+            const shareUrl = `${window.location.origin}${window.location.pathname}?room=${state.raceRoom.code}`;
+            navigator.clipboard.writeText(shareUrl);
             playSound('key');
-            alert(`Kode Room ${state.raceRoom.code} berhasil disalin!`);
+            alert(`Link Room balapan berhasil disalin!\n${shareUrl}\n\nKirim link ini ke temanmu agar mereka langsung masuk ke arena balap!`);
         }
 
         function renderRaceLanes() {
@@ -2187,6 +2573,18 @@
 
         async function startRaceCountdown() {
             if (!state.raceRoom) return;
+
+            if (firebaseDb) {
+                try {
+                    await firebaseDb.ref(`rooms/${state.raceRoom.code}`).update({
+                        status: 'countdown'
+                    });
+                } catch (e) {
+                    console.error("Firebase start race error:", e);
+                }
+                return;
+            }
+
             try {
                 await fetch('/api/rooms', {
                     method: 'POST',
@@ -2299,7 +2697,7 @@
                     if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 80 });
                 }
 
-                // Kirim update progres ke server
+                // Kirim update progres ke database
                 sendRaceProgressUpdate(progressPct, liveWpm, isFinished);
 
             } else {
@@ -2309,6 +2707,58 @@
 
         async function sendRaceProgressUpdate(progress, wpm, isFinished) {
             if (!state.raceRoom) return;
+
+            if (firebaseDb) {
+                try {
+                    const roomCode = state.raceRoom.code;
+                    const playerRef = firebaseDb.ref(`rooms/${roomCode}/players/${state.racePlayerId}`);
+
+                    if (isFinished) {
+                        const roomRef = firebaseDb.ref(`rooms/${roomCode}`);
+                        await roomRef.transaction((room) => {
+                            if (!room) return room;
+                            if (!room.finishedCount) room.finishedCount = 0;
+                            room.finishedCount += 1;
+
+                            if (room.players && room.players[state.racePlayerId]) {
+                                room.players[state.racePlayerId].progress = 100;
+                                room.players[state.racePlayerId].wpm = wpm;
+                                room.players[state.racePlayerId].isFinished = true;
+                                room.players[state.racePlayerId].finishRank = room.finishedCount;
+                                room.players[state.racePlayerId].finishTime = Date.now();
+                            }
+
+                            const allPlayers = Object.values(room.players || {});
+                            const allDone = allPlayers.length > 0 && allPlayers.every(p => p.isFinished);
+                            if (allDone) {
+                                room.status = 'finished';
+                            }
+                            return room;
+                        });
+
+                        const snap = await playerRef.once('value');
+                        const myPlayer = snap.val();
+                        if (myPlayer && myPlayer.finishRank === 1) {
+                            state.profile.raceWins = (state.profile.raceWins || 0) + 1;
+                            checkBadge('race_winner');
+                        }
+                        recordGameStats('Online Race', wpm, 98);
+                        saveProfile(true);
+                        showRacePodium();
+                    } else {
+                        await playerRef.update({
+                            progress: progress,
+                            wpm: wpm,
+                            isFinished: false,
+                            lastActive: Date.now()
+                        });
+                    }
+                } catch (e) {
+                    console.error("Firebase update progress error:", e);
+                }
+                return;
+            }
+
             try {
                 const res = await fetch('/api/rooms', {
                     method: 'POST',
@@ -2330,11 +2780,11 @@
                     if (isFinished) {
                         const myPlayer = data.room.players.find(p => p.id === state.racePlayerId);
                         if (myPlayer && myPlayer.finishRank === 1) {
-                            state.profile.raceWins++;
+                            state.profile.raceWins = (state.profile.raceWins || 0) + 1;
                             checkBadge('race_winner');
-                            saveProfile();
                         }
                         recordGameStats('Online Race', wpm, 98);
+                        saveProfile(true);
                         showRacePodium();
                     }
                 }
@@ -2347,24 +2797,28 @@
             podiumBox.classList.remove('hidden');
             list.innerHTML = '';
 
-            const sorted = [...state.raceRoom.players].sort((a, b) => {
+            const players = Array.isArray(state.raceRoom?.players)
+                ? state.raceRoom.players
+                : Object.values(state.raceRoom?.players || {});
+
+            const sorted = [...players].sort((a, b) => {
                 if (a.finishRank && b.finishRank) return a.finishRank - b.finishRank;
                 if (a.finishRank) return -1;
                 if (b.finishRank) return 1;
-                return b.progress - a.progress;
+                return (b.progress || 0) - (a.progress || 0);
             });
 
             sorted.forEach((p, idx) => {
                 const item = document.createElement('div');
-                item.className = "flex justify-between items-center p-3 rounded-2xl bg-amber-50 border border-amber-200";
+                item.className = "flex justify-between items-center p-3 rounded-2xl bg-amber-50 dark:bg-stone-800 border border-amber-200 dark:border-stone-700";
                 item.innerHTML = `
                     <div class="flex items-center gap-2">
                         <span class="text-xl">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '🐾'}</span>
-                        <span class="font-bold text-stone-800 text-sm">${p.name}</span>
+                        <span class="font-bold text-stone-800 dark:text-stone-100 text-sm">${p.name} ${p.mascot || '🐱'}</span>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span class="text-xs font-black text-pink-600">${p.wpm} WPM</span>
-                        <span class="text-xs font-bold text-emerald-700">${p.progress}%</span>
+                        <span class="text-xs font-black text-pink-600 dark:text-pink-400">${p.wpm || 0} WPM</span>
+                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400">${p.progress || 0}%</span>
                     </div>
                 `;
                 list.appendChild(item);
@@ -2373,6 +2827,39 @@
 
         async function requestRaceRematch() {
             if (!state.raceRoom) return;
+
+            if (firebaseDb) {
+                try {
+                    const roomCode = state.raceRoom.code;
+                    const randomText = DEFAULT_RACE_TEXTS[Math.floor(Math.random() * DEFAULT_RACE_TEXTS.length)];
+                    const roomRef = firebaseDb.ref(`rooms/${roomCode}`);
+
+                    await roomRef.transaction((room) => {
+                        if (!room) return room;
+                        room.status = 'waiting';
+                        room.finishedCount = 0;
+                        room.targetText = randomText;
+                        if (room.players) {
+                            Object.keys(room.players).forEach(pId => {
+                                room.players[pId].progress = 0;
+                                room.players[pId].wpm = 0;
+                                room.players[pId].isFinished = false;
+                                delete room.players[pId].finishRank;
+                                delete room.players[pId].finishTime;
+                            });
+                        }
+                        return room;
+                    });
+
+                    document.getElementById('race-result-podium').classList.add('hidden');
+                    document.getElementById('race-typing-section').classList.add('hidden');
+                    document.getElementById('race-waiting-controls').classList.remove('hidden');
+                } catch (e) {
+                    console.error("Firebase rematch error:", e);
+                }
+                return;
+            }
+
             try {
                 const res = await fetch('/api/rooms', {
                     method: 'POST',
@@ -2395,6 +2882,15 @@
 
         function leaveRaceRoom() {
             stopRacePolling();
+            if (state.raceRoom && firebaseDb && state.racePlayerId) {
+                try {
+                    firebaseDb.ref(`rooms/${state.raceRoom.code}/players/${state.racePlayerId}`).remove();
+                } catch (e) {}
+            }
+            if (state.raceRoomRef) {
+                state.raceRoomRef.off();
+                state.raceRoomRef = null;
+            }
             state.raceRoom = null;
             state.racePlayerId = null;
             goHome();

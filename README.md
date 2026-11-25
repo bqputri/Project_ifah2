@@ -8,7 +8,7 @@ TypePaws adalah aplikasi web latihan mengetik modern dan interaktif bertema kuci
 
 ### 1. 🌙 Dark Mode (Mode Gelap)
 - Tombol toggle 🌙 / ☀️ di bagian header untuk beralih antara Mode Terang dan Mode Gelap.
-- Palet warna malam yang dirancang khusus agar nyaman di mata, kontras tinggi, dan tetap mempertahankan estetika lucu khas TypePaws.
+- Palet warna malam yang dirancang khusus agar nyaman di mata, kontras tinggi, teks dan badge mudah dibaca di malam hari, dan tetap mempertahankan estetika lucu khas TypePaws.
 - Preferensi tema otomatis tersimpan di `localStorage` sehingga tidak ter-reset saat browser dibuka kembali.
 
 ### 2. 🌐 Multi-bahasa (Bahasa Indonesia & English)
@@ -17,29 +17,29 @@ TypePaws adalah aplikasi web latihan mengetik modern dan interaktif bertema kuci
 - Menyediakan kalimat latihan khusus bahasa Inggris untuk level petualangan dan bank kata time attack.
 - Generator teks AI Gemini juga dapat membuat teks latihan dalam Bahasa Indonesia maupun English.
 
-### 3. 👤 Sistem Akun, Statistik & Penyimpanan Progres
-- **Statistik Lengkap**: Melacak total sesi permainan, WPM tertinggi (*Personal Best*), rata-rata akurasi, dan jumlah kemenangan balapan.
-- **Sistem Level & XP**: Pemain memperoleh XP dan kenaikan level setiap kali menyelesaikan sesi latihan.
-- **8 Lencana Pencapaian (Badges)**: Buka lencana unik seperti *Langkah Pertama*, *Jari Lincah (30+ WPM)*, *Kilat Cahaya (50+ WPM)*, *Mata Elang (100% Akurasi)*, *Mode On-Fire*, *Sahabat AI*, *Juara Balap*, dan *Penjelajah Ulung*.
-- **Riwayat Permainan**: Menyimpan 10 riwayat permainan terakhir secara detail.
+### 3. 👤 Sistem Akun & Progres Permanen (Firebase Cloud Sync & Offline Mode)
+- **Firebase Authentication**: Mendukung pendaftaran & login akun via **Email/Password** dan **Google Sign-In** satu klik.
+- **Penyimpanan Cloud Otomatis**: Setiap selesai bermain (Petualangan, Time Attack, AI, atau Balapan Online), data skor terbaik (WPM tertinggi), rata-rata akurasi, total permainan, level terbuka (1-100), dan riwayat bermain otomatis tersimpan ke cloud via Firebase.
+- **Fitur Lihat Kata Sandi**: Ikon mata (👁️) untuk melihat atau menyembunyikan kata sandi saat mendaftar atau masuk akun.
+- **Fallback Mode Tamu / Offline**: Jika pengguna belum login atau belum mengisi konfigurasi Firebase, progres tetap tersimpan rapi di browser lokal (`localStorage`).
 - **Pencadangan Data**: Fitur **Export JSON** dan **Import JSON** untuk mencadangkan atau memindahkan progres antar-perangkat secara instan tanpa perlu mendaftar akun.
-- **Sinkronisasi Cloud (Opsional)**: Mendukung Supabase Auth & Cloud Database untuk sinkronisasi otomatis multi-perangkat.
 
-### 4. 🏁 Balapan Mengetik Online (Multiplayer Typing Race)
-- **Buat Room (Host)**: Membuat room balapan dengan kode unik 5 huruf (misal: `PAW88`) yang bisa dibagikan ke teman.
-- **Gabung Room**: Masuk ke room balapan teman hanya dengan memasukkan kode room.
-- **Lintasan Balap Real-Time**: Avatar maskot setiap pemain bergerak maju secara real-time di jalurnya masing-masing sesuai persentase kata yang sudah diketik beserta indikator WPM langsung.
-- **Hitung Mundur & Garis Finis**: Dilengkapi animasi hitung mundur dramatis (3, 2, 1, GO!), podium pemenang (🥇 1st, 🥈 2nd, 🥉 3rd), dan fitur tanding ulang (*Rematch*).
-- **Kompatibel Serverless Vercel & Lokal**: Berjalan langsung di server lokal maupun Vercel Serverless Function via endpoint `/api/rooms`, serta mendukung Supabase Realtime Channels.
+### 4. 🏁 Balapan Mengetik Online Real-Time (Firebase Realtime Database)
+- **Multiplayer Antar-Perangkat (Cross-Device)**: Menggunakan Firebase Realtime Database berkecepatan tinggi dengan latensi milidetik via WebSocket, kompatibel penuh dengan arsitektur serverless Vercel.
+- **Buat Room (Host)**: Membuat room balapan dengan kode unik 6 karakter (misal: `CAT77X`) dan tombol salin link yang bisa langsung dibagikan ke teman.
+- **Gabung Room (Guest)**: Masuk ke room balapan teman via link atau dengan memasukkan kode room. Avatar kucing dan nama pemain seketika muncul di layar lobi semua pemain.
+- **Hitung Mundur Sinkron**: Saat host menekan *Mulai Balapan*, hitungan mundur 3-2-1 berjalan serentak di layar seluruh pemain.
+- **Lintasan Balap Real-Time**: Posisi avatar kucing setiap pemain bergerak maju secara nyata sesuai persentase kata yang sudah diketik, lengkap dengan badge WPM langsung.
+- **Podium Juara & Tanding Ulang (Rematch)**: Peringkat juara 1 (🥇), 2 (🥈), dan 3 (🥉) dihitung secara instan saat melewati garis finis. Host dapat menekan tombol *Tanding Ulang* untuk memulai ronde baru dengan teks acak baru.
 
-### 5. ✨ Buat Teks Latihan Baru dengan AI (Google Gemini API)
+### 5. 🗺️ Mode Petualangan 100 Level & ⏱️ Mode Tantangan Waktu
+- **100 Level Bertahap**: Mulai dari latihan paling dasar (Home Row keys `asdf jkl;`), penambahan baris atas/bawah, angka, tanda baca, simbol coding, hingga kalimat kompleks dan quotes dunia.
+- **Mode Time Attack**: Pilihan durasi 15 detik, 30 detik, dan 60 detik dengan fitur **Mode On-Fire (2x Poin)** saat mengetik tanpa salah beruntun.
+
+### 6. ✨ Buat Teks Latihan Baru dengan AI (Google Gemini API)
 - Pengguna dapat mengetik topik bebas (misal: *cerita kucing astronot*, *motivasi belajar*, *petualangan hutan ajaib*).
 - Gemini AI membuatkan kalimat latihan mengetik yang natural, menarik, dan siap diketik dalam pilihan bahasa Indonesia atau Inggris.
 - API Key tersimpan aman di server backend (`process.env.GEMINI_API_KEY`) dan tidak pernah terekspos ke browser pengguna.
-
-### 6. 🗺️ Mode Petualangan & ⏱️ Mode Tantangan Waktu
-- 10 Level bertahap dari pemanasan home row hingga kombinasi angka dan tanda baca.
-- Mode Time Attack (15s, 30s, 60s) dengan fitur **On-Fire Mode (2x Poin)** saat mengetik tanpa salah beruntun.
 
 ---
 
@@ -48,39 +48,71 @@ TypePaws adalah aplikasi web latihan mengetik modern dan interaktif bertema kuci
 ```text
 Aniswatul Latifah/
 ├── api/
-│   ├── config.js           # Endpoint konfigurasi publik klien (Supabase, dll)
+│   ├── config.js           # Endpoint konfigurasi publik klien (Firebase Web Config)
 │   ├── generate.js         # Endpoint Serverless Gemini AI
-│   └── rooms.js            # Endpoint Serverless Room Manager Balapan Online
+│   └── rooms.js            # Endpoint Serverless Room Manager Balapan Online (Fallback)
+├── levels.js               # Data 100 Level Petualangan TypePaws (Mudah -> Sulit)
 ├── .env                    # Variabel environment lokal (API Key - diabaikan Git)
 ├── .env.example            # Template contoh environment
 ├── .gitignore              # Memastikan .env & node_modules tidak ter-upload ke Git
 ├── index.html              # Frontend utama TypePaws + Dark Mode, i18n, Profil, & Balapan
 ├── package.json            # Dependensi Node.js
-├── server.js               # Backend Server Express
+├── server.js               # Backend Server Express Lokal
 ├── vercel.json             # Konfigurasi deployment serverless Vercel
 └── README.md               # Dokumentasi lengkap proyek
 ```
 
 ---
 
-## 🔑 Variabel Environment (`.env`)
+## 🔑 Langkah Konfigurasi Firebase (Gratis)
 
-Salin file `.env.example` menjadi `.env` lalu sesuaikan isinya:
+Agar fitur **Akun Cloud** dan **Balapan Online Real-Time** dapat digunakan antar-perangkat di Vercel:
 
-```env
-# Port Server Lokal
-PORT=3000
+1. **Buka Firebase Console**:
+   - Masuk ke [https://console.firebase.google.com/](https://console.firebase.google.com/) menggunakan akun Google Anda.
+   - Klik **"Add project"** (Tambah proyek), beri nama misalnya `typepaws-game`, lalu selesaikan pembuatan proyek.
 
-# Google Gemini API Key (Wajib untuk Fitur AI Generator)
-# Dapatkan gratis di https://aistudio.google.com/
-GEMINI_API_KEY=AIzaSy...
+2. **Aktifkan Firebase Authentication**:
+   - Di menu sebelah kiri, klik **Build > Authentication**.
+   - Klik tab **Sign-in method**.
+   - Aktifkan provider **Email/Password** (centang Enable lalu Save).
+   - *(Opsional)* Aktifkan juga provider **Google** untuk login satu klik.
 
-# Supabase (Opsional - untuk Cloud Auth & Realtime Sync Multi-Perangkat)
-# Dapatkan gratis di https://supabase.com/
-# Jika dikosongkan, TypePaws tetap berjalan 100% normal dengan penyimpanan lokal (localStorage)
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOi...
-```
+3. **Buat Firebase Realtime Database**:
+   - Di menu sebelah kiri, klik **Build > Realtime Database**.
+   - Klik **Create Database**, pilih lokasi server terdekat (misal: `Singapore` atau `United States`).
+   - Pada pilihan Security Rules, pilih **"Start in test mode"** (agar dapat membaca dan menulis data permainan) lalu klik **Enable**.
+
+4. **Dapatkan Web App Configuration**:
+   - Klik ikon gerigi (⚙️) di kiri atas > pilih **Project settings**.
+   - Pada tab **General**, gulir ke bawah ke bagian **"Your apps"**, lalu klik ikon Web (`</>`).
+   - Beri nama aplikasi (misal `TypePaws Web`), lalu klik **Register app**.
+   - Firebase akan menampilkan kode `firebaseConfig` seperti:
+     ```javascript
+     const firebaseConfig = {
+       apiKey: "AIzaSy...",
+       authDomain: "typepaws-game.firebaseapp.com",
+       projectId: "typepaws-game",
+       storageBucket: "typepaws-game.appspot.com",
+       messagingSenderId: "1234567890",
+       appId: "1:1234567890:web:abcdef...",
+       databaseURL: "https://typepaws-game-default-rtdb.firebaseio.com"
+     };
+     ```
+
+5. **Salin ke File `.env` Lokal**:
+   Buat/perbarui file `.env` di folder proyek Anda:
+   ```env
+   PORT=3000
+   GEMINI_API_KEY=AIzaSy...
+   FIREBASE_API_KEY=AIzaSy...
+   FIREBASE_AUTH_DOMAIN=typepaws-game.firebaseapp.com
+   FIREBASE_PROJECT_ID=typepaws-game
+   FIREBASE_STORAGE_BUCKET=typepaws-game.appspot.com
+   FIREBASE_MESSAGING_SENDER_ID=1234567890
+   FIREBASE_APP_ID=1:1234567890:web:abcdef
+   FIREBASE_DATABASE_URL=https://typepaws-game-default-rtdb.firebaseio.com
+   ```
 
 ---
 
@@ -101,10 +133,16 @@ SUPABASE_ANON_KEY=eyJhbGciOi...
 
 ## ☁️ Deployment ke Vercel
 
-1. Hubungkan repository GitHub Anda ke [Vercel](https://vercel.com).
-2. Di halaman pengaturan proyek Vercel, buka menu **Settings > Environment Variables**.
-3. Tambahkan environment variable berikut:
-   - `GEMINI_API_KEY`: API Key Gemini Anda.
-   - `SUPABASE_URL` *(opsional)*: URL proyek Supabase jika menggunakan cloud sync.
-   - `SUPABASE_ANON_KEY` *(opsional)*: Anon key proyek Supabase jika menggunakan cloud sync.
-4. Klik **Deploy**.
+1. Push perubahan kode ke repository GitHub Anda (`git push origin main`).
+2. Masuk ke dashboard proyek di [Vercel](https://vercel.com).
+3. Buka menu **Settings > Environment Variables**.
+4. Tambahkan variabel-variabel berikut:
+   - `GEMINI_API_KEY`
+   - `FIREBASE_API_KEY`
+   - `FIREBASE_AUTH_DOMAIN`
+   - `FIREBASE_PROJECT_ID`
+   - `FIREBASE_STORAGE_BUCKET`
+   - `FIREBASE_MESSAGING_SENDER_ID`
+   - `FIREBASE_APP_ID`
+   - `FIREBASE_DATABASE_URL`
+5. Lakukan **Redeploy** di Vercel agar environment variable baru diterapkan. Aplikasi TypePaws Anda kini siap dimainkan secara multiplayer online di seluruh dunia! 🎉

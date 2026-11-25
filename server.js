@@ -39,6 +39,7 @@ app.get('/api/health', (req, res) => {
         status: 'OK',
         message: 'TypePaws Backend Server berjalan normal',
         geminiConfigured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE'),
+        firebaseConfigured: Boolean(process.env.FIREBASE_API_KEY && process.env.FIREBASE_API_KEY !== 'YOUR_FIREBASE_API_KEY'),
         supabaseConfigured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY && process.env.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY')
     });
 });
