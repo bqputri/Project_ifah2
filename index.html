@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     <title>TypePaws - Latihan Mengetik Cepat & Lucu</title>
 
     <!-- Progressive Web App (PWA) Manifest & Meta Tags -->
@@ -281,6 +281,60 @@
         .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+
+        /* --- PENYESUAIAN KHUSUS HP (AGAR TEKS TIDAK TERTUTUP KEYBOARD) --- */
+        @media (max-width: 640px) {
+            body.in-game {
+                min-height: 100vh;
+                overflow-y: auto !important;
+            }
+
+            /* Saat virtual keyboard terbuka di HP, sembunyikan navbar header agar layar luas */
+            body.keyboard-open header {
+                display: none !important;
+            }
+
+            /* Berikan ruang scroll ke bawah agar card ketikan bisa diposisikan di atas keyboard */
+            body.in-game #screen-game,
+            body.in-game #screen-race-room {
+                padding-bottom: 55vh !important;
+            }
+
+            /* Perkecil dan padatkan elemen HUD di HP */
+            body.in-game #game-mascot {
+                width: 2.25rem !important;
+                height: 2.25rem !important;
+                font-size: 1.25rem !important;
+            }
+
+            body.in-game #typing-card,
+            body.in-game #race-typing-card {
+                padding: 0.85rem 1rem !important;
+                min-height: 100px !important;
+                max-height: 40vh !important;
+                overflow-y: auto !important;
+                border-width: 3px !important;
+                margin-top: 0.25rem !important;
+            }
+
+            body.in-game #target-text-display,
+            body.in-game #race-target-text-display {
+                font-size: 1.25rem !important;
+                line-height: 1.55 !important;
+                max-height: 32vh !important;
+                overflow-y: auto !important;
+            }
+
+            /* Sembunyikan helper tombol keyboard saat keyboard sudah aktif mengetik */
+            body.keyboard-open #mobile-helper-container {
+                display: none !important;
+            }
+
+            /* Sembunyikan banner PWA saat sedang aktif bermain */
+            body.in-game #pwa-install-banner {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -585,7 +639,7 @@
                     <div id="race-target-text-display" class="font-mono-typing text-lg sm:text-2xl leading-relaxed tracking-wide text-center break-words max-w-full select-none">
                         <!-- Teks balapan -->
                     </div>
-                    <input type="text" id="hidden-race-input" class="opacity-0 absolute pointer-events-none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <input type="text" id="hidden-race-input" class="opacity-0 absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 pointer-events-none -z-10" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                 </div>
             </div>
 
@@ -750,7 +804,7 @@
                     <!-- Karakter dirender di sini -->
                 </div>
 
-                <input type="text" id="hidden-typing-input" class="opacity-0 absolute pointer-events-none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <input type="text" id="hidden-typing-input" class="opacity-0 absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 pointer-events-none -z-10" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
 
             <!-- VISUAL KEYBOARD GUIDE -->
@@ -1716,6 +1770,26 @@
                 hideInstallPromptUI();
                 alert('🎉 TypePaws berhasil dipasang di perangkatmu! Selamat bermain!');
             });
+
+            // 6. Penanganan dinamis ukuran layar saat keyboard virtual HP naik/turun
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    if (window.innerWidth < 640 && document.body.classList.contains('in-game')) {
+                        const isKeyboardUp = (window.innerHeight - window.visualViewport.height) > 120;
+                        if (isKeyboardUp) {
+                            document.body.classList.add('keyboard-open');
+                            const activeCard = !document.getElementById('screen-game').classList.contains('hidden') 
+                                ? document.getElementById('typing-card') 
+                                : document.getElementById('race-typing-card');
+                            if (activeCard && typeof scrollTypingCardIntoView === 'function') {
+                                setTimeout(() => scrollTypingCardIntoView(activeCard.id), 80);
+                            }
+                        } else {
+                            document.body.classList.remove('keyboard-open');
+                        }
+                    }
+                });
+            }
         }
 
         function showInstallPromptUI() {
@@ -1863,6 +1937,12 @@
             });
             const target = document.getElementById(screenId);
             if (target) target.classList.remove('hidden');
+
+            if (screenId === 'screen-game' || screenId === 'screen-race-room') {
+                document.body.classList.add('in-game');
+            } else {
+                document.body.classList.remove('in-game', 'keyboard-open');
+            }
         }
 
         function goHome() {
@@ -2822,7 +2902,27 @@
         function focusRaceInput() {
             const input = document.getElementById('hidden-race-input');
             if (input) input.focus();
+            if (typeof scrollTypingCardIntoView === 'function') {
+                scrollTypingCardIntoView('race-typing-card');
+            }
         }
+
+        document.getElementById('hidden-race-input').addEventListener('focus', () => {
+            if (window.innerWidth < 640) {
+                document.body.classList.add('keyboard-open');
+                if (typeof scrollTypingCardIntoView === 'function') {
+                    scrollTypingCardIntoView('race-typing-card');
+                }
+            }
+        });
+
+        document.getElementById('hidden-race-input').addEventListener('blur', () => {
+            setTimeout(() => {
+                if (document.activeElement !== document.getElementById('hidden-race-input')) {
+                    document.body.classList.remove('keyboard-open');
+                }
+            }, 200);
+        });
 
         function renderRaceTargetText() {
             const container = document.getElementById('race-target-text-display');
@@ -2837,12 +2937,17 @@
                     html += `<span class="text-emerald-500 font-bold">${displayChar}</span>`;
                 } else if (i === state.currentIndex) {
                     let cursorBg = char === ' ' ? 'bg-pink-200 px-1' : '';
-                    html += `<span class="cursor-blink text-pink-600 font-bold ${cursorBg}">${displayChar}</span>`;
+                    html += `<span id="race-active-char" class="cursor-blink text-pink-600 font-bold ${cursorBg}">${displayChar}</span>`;
                 } else {
                     html += `<span class="text-stone-400">${displayChar}</span>`;
                 }
             }
             container.innerHTML = html;
+
+            const activeEl = document.getElementById('race-active-char');
+            if (activeEl && window.innerWidth < 640 && container.scrollHeight > container.clientHeight) {
+                activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         // Listener Ketikan untuk Mode Balapan
@@ -3397,16 +3502,43 @@
             setTimeout(() => focusInput(), 100);
         }
 
+        function scrollTypingCardIntoView(cardId) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            if (window.innerWidth < 640) {
+                document.body.classList.add('keyboard-open');
+                setTimeout(() => {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 80);
+                setTimeout(() => {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 280);
+            }
+        }
+
         function focusInput() {
             const input = document.getElementById('hidden-typing-input');
             if (input) input.focus();
             document.getElementById('focus-overlay').classList.add('hidden');
+            scrollTypingCardIntoView('typing-card');
         }
+
+        document.getElementById('hidden-typing-input').addEventListener('focus', () => {
+            if (window.innerWidth < 640) {
+                document.body.classList.add('keyboard-open');
+                scrollTypingCardIntoView('typing-card');
+            }
+        });
 
         document.getElementById('hidden-typing-input').addEventListener('blur', () => {
             if (!document.getElementById('screen-game').classList.contains('hidden')) {
                 document.getElementById('focus-overlay').classList.remove('hidden');
             }
+            setTimeout(() => {
+                if (document.activeElement !== document.getElementById('hidden-typing-input')) {
+                    document.body.classList.remove('keyboard-open');
+                }
+            }, 200);
         });
 
         function renderTargetText() {
@@ -3435,6 +3567,11 @@
                 }
             }
             container.innerHTML = html;
+
+            const activeEl = document.getElementById('active-char');
+            if (activeEl && window.innerWidth < 640 && container.scrollHeight > container.clientHeight) {
+                activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         document.getElementById('hidden-typing-input').addEventListener('input', function() {
