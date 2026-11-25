@@ -40,6 +40,10 @@
       "dest": "/api/config.js"
     },
     {
+      "src": "/api/feedback",
+      "dest": "/api/feedback.js"
+    },
+    {
       "src": "/levels.js",
       "dest": "/levels.js"
     },

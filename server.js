@@ -6,6 +6,7 @@ require('dotenv').config();
 const generateHandler = require('./api/generate');
 const roomsHandler = require('./api/rooms');
 const configHandler = require('./api/config');
+const feedbackHandler = require('./api/feedback');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,6 +34,11 @@ app.get('/api/config', (req, res) => {
     configHandler(req, res);
 });
 
+// Endpoint API Feedback / Laporkan Masalah (Gmail)
+app.post('/api/feedback', (req, res) => {
+    feedbackHandler(req, res);
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({
@@ -40,7 +46,8 @@ app.get('/api/health', (req, res) => {
         message: 'TypePaws Backend Server berjalan normal',
         geminiConfigured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE'),
         firebaseConfigured: Boolean(process.env.FIREBASE_API_KEY && process.env.FIREBASE_API_KEY !== 'YOUR_FIREBASE_API_KEY'),
-        supabaseConfigured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY && process.env.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY')
+        supabaseConfigured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY && process.env.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY'),
+        gmailConfigured: Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD && process.env.GMAIL_USER !== 'YOUR_GMAIL_ADDRESS@gmail.com')
     });
 });
 

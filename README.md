@@ -47,6 +47,12 @@ TypePaws adalah aplikasi web latihan mengetik modern dan interaktif bertema kuci
 - **Dukungan Offline**: Menggunakan Service Worker (`sw.js`) untuk menyimpan cache aset inti sehingga dapat dimainkan kapan saja meskipun tanpa koneksi internet.
 - **Tombol & Banner Install**: Tersedia tombol dan banner "Pasang App" yang muncul otomatis di browser yang mendukung (Chrome/Edge/Android), lengkap dengan panduan untuk pengguna iPhone/iPad.
 
+### 8. 💬 Beri Masukan & Laporkan Masalah (Feedback via Gmail)
+- **Formulir Interaktif**: Pengguna dapat mengirim saran fitur, laporan bug/error, komplain, atau kritik langsung melalui pop-up modal modern di aplikasi (tersedia tombol di header, footer, dan floating button).
+- **Kirim Langsung ke Gmail**: Menggunakan backend serverless (`/api/feedback`) dengan library **Nodemailer** untuk mengirim email HTML rapi ke alamat Gmail pemilik website (`GMAIL_RECEIVER`).
+- **Opsi Email Balasan**: Jika pengguna mencantumkan email, pemilik web dapat langsung membalas pesan pengguna via tombol "Balas Pesan" di Gmail.
+- **Deteksi Info Perangkat**: Pesan otomatis menyertakan ukuran layar, mode perangkat (HP / Keyboard), dan jenis browser untuk mempermudah perbaikan bug.
+
 ---
 
 ## 📁 Struktur Proyek
@@ -55,6 +61,7 @@ TypePaws adalah aplikasi web latihan mengetik modern dan interaktif bertema kuci
 Aniswatul Latifah/
 ├── api/
 │   ├── config.js           # Endpoint konfigurasi publik klien (Firebase Web Config)
+│   ├── feedback.js         # Endpoint Serverless Pengiriman Masukan via Gmail
 │   ├── generate.js         # Endpoint Serverless Gemini AI
 │   └── rooms.js            # Endpoint Serverless Room Manager Balapan Online (Fallback)
 ├── icons/
@@ -129,6 +136,33 @@ Agar fitur **Akun Cloud** dan **Balapan Online Real-Time** dapat digunakan antar
 
 ---
 
+## ✉️ Langkah Konfigurasi Gmail Feedback (Nodemailer)
+
+Agar kritik, saran, dan laporan bug pengguna terkirim langsung ke akun Gmail Anda:
+
+1. **Aktifkan Verifikasi 2 Langkah (2-Step Verification)**:
+   - Buka pengaturan akun Google Anda di [https://myaccount.google.com/security](https://myaccount.google.com/security).
+   - Pastikan **2-Step Verification** sudah dalam status aktif.
+
+2. **Buat Sandi Aplikasi (Google App Password)**:
+   - Kunjungi [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
+   - Beri nama aplikasi, misalnya: `TypePaws Feedback`.
+   - Klik **Create / Buat**. Google akan memunculkan 16 karakter sandi khusus (misal: `abcd efgh ijkl mnop`).
+   - Salin 16 karakter tersebut.
+
+3. **Masukkan ke File `.env` Lokal**:
+   ```env
+   GMAIL_USER=emailanda@gmail.com
+   GMAIL_APP_PASSWORD=abcdefghijklmnop
+   GMAIL_RECEIVER=emailanda@gmail.com
+   ```
+
+4. **Masukkan ke Vercel Settings**:
+   - Di dashboard Vercel, buka **Settings > Environment Variables**.
+   - Tambahkan `GMAIL_USER`, `GMAIL_APP_PASSWORD`, dan `GMAIL_RECEIVER`.
+
+---
+
 ## 🚀 Cara Menjalankan di Komputer Lokal
 
 1. **Pasang Dependensi**:
@@ -150,12 +184,9 @@ Agar fitur **Akun Cloud** dan **Balapan Online Real-Time** dapat digunakan antar
 2. Masuk ke dashboard proyek di [Vercel](https://vercel.com).
 3. Buka menu **Settings > Environment Variables**.
 4. Tambahkan variabel-variabel berikut:
-   - `GEMINI_API_KEY`
-   - `FIREBASE_API_KEY`
-   - `FIREBASE_AUTH_DOMAIN`
-   - `FIREBASE_PROJECT_ID`
-   - `FIREBASE_STORAGE_BUCKET`
-   - `FIREBASE_MESSAGING_SENDER_ID`
-   - `FIREBASE_APP_ID`
-   - `FIREBASE_DATABASE_URL`
-5. Lakukan **Redeploy** di Vercel agar environment variable baru diterapkan. Aplikasi TypePaws Anda kini siap dimainkan secara multiplayer online di seluruh dunia! 🎉
+   - `GEMINI_API_KEY`: Kunci API Google AI Studio
+   - `FIREBASE_API_KEY` dkk: Konfigurasi Firebase Web
+   - `GMAIL_USER`: Alamat Gmail Anda
+   - `GMAIL_APP_PASSWORD`: Sandi Aplikasi Google 16 karakter
+   - `GMAIL_RECEIVER`: Alamat Gmail tujuan laporan
+5. Lakukan **Redeploy** di Vercel agar environment variable baru diterapkan. Aplikasi TypePaws Anda kini siap dimainkan dan menerima masukan pengguna secara live! 🎉

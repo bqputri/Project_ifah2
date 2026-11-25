@@ -331,6 +331,11 @@
                 display: none !important;
             }
 
+            /* Sembunyikan floating feedback saat keyboard HP aktif mengetik */
+            body.keyboard-open #floating-feedback-btn {
+                display: none !important;
+            }
+
             /* Sembunyikan banner PWA saat sedang aktif bermain */
             body.in-game #pwa-install-banner {
                 display: none !important;
@@ -383,6 +388,11 @@
             <!-- 4. Toggle Dark / Light Mode -->
             <button onclick="toggleDarkMode()" id="btn-theme-toggle" class="btn-3d w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-2xl border-2 border-amber-200 flex items-center justify-center text-lg shadow-sm hover:bg-amber-50 transition" title="Ubah Tema Gelap/Terang">
                 🌙
+            </button>
+
+            <!-- 4B. Tombol Beri Masukan / Laporkan Masalah -->
+            <button onclick="openFeedbackModal()" id="btn-header-feedback" class="btn-3d px-2 sm:px-2.5 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs sm:text-sm font-bold flex items-center gap-1 shadow border border-rose-600 transition" title="Beri Masukan / Laporkan Masalah">
+                💬 <span class="hidden xl:inline" data-i18n="navFeedback">Masukan</span>
             </button>
 
             <!-- 5. Switch Mode HP / Keyboard -->
@@ -1205,9 +1215,100 @@
         </div>
     </div>
 
+    <!-- TOMBOL MENGAMBANG (FLOATING FEEDBACK BUTTON) -->
+    <button id="floating-feedback-btn" onclick="openFeedbackModal()" class="fixed bottom-5 right-4 z-40 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white py-2 px-3 sm:px-4 rounded-full shadow-2xl border-2 border-white/90 flex items-center gap-1.5 text-xs sm:text-sm font-bold transition-all hover:scale-105 active:scale-95" title="Kirim Masukan atau Laporkan Masalah">
+        <span class="text-base sm:text-lg">💬</span>
+        <span class="hidden sm:inline" data-i18n="floatingFeedback">Masukan / Komplain</span>
+    </button>
+
+    <!-- MODAL FORMULIR MASUKAN & KOMPLAIN (FEEDBACK & REPORT BUG) -->
+    <div id="modal-feedback" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-sm transition-all overflow-y-auto">
+        <div class="bg-white dark:bg-stone-800 rounded-3xl p-5 sm:p-7 border-4 border-rose-300 dark:border-rose-600 shadow-2xl max-w-lg w-full relative my-auto">
+            
+            <!-- Tombol Tutup -->
+            <button onclick="closeFeedbackModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-rose-100 hover:text-rose-600 dark:bg-stone-700 dark:text-stone-300 flex items-center justify-center text-sm font-bold transition">
+                ✕
+            </button>
+
+            <!-- Header Modal -->
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-300 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-2 shadow-sm border border-rose-200 dark:border-rose-700">
+                    💬
+                </div>
+                <h3 class="text-xl font-black text-rose-600 dark:text-rose-400" data-i18n="feedbackModalTitle">
+                    Beri Masukan & Laporan
+                </h3>
+                <p class="text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-sm mx-auto" data-i18n="feedbackModalSub">
+                    Punya saran fitur baru, kritik, atau menemukan bug? Kirimkan langsung ke pengembang TypePaws!
+                </p>
+            </div>
+
+            <!-- Form -->
+            <form id="feedback-form" onsubmit="submitFeedback(event)" class="space-y-3">
+                <!-- 1. Nama Pengirim (Opsional) -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-1" data-i18n="feedbackNameLabel">
+                        Nama Pengirim (Opsional):
+                    </label>
+                    <input type="text" id="feedback-name" placeholder="Misal: Rina / CatLover" maxlength="80" class="w-full text-xs font-medium p-2.5 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-rose-400 transition">
+                </div>
+
+                <!-- 2. Email Pengirim (Opsional) -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-1" data-i18n="feedbackEmailLabel">
+                        Email Pengirim (Opsional, agar bisa dibalas):
+                    </label>
+                    <input type="email" id="feedback-email" placeholder="nama@email.com" maxlength="100" class="w-full text-xs font-medium p-2.5 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-rose-400 transition">
+                </div>
+
+                <!-- 3. Kategori Masukan -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-1" data-i18n="feedbackCategoryLabel">
+                        Kategori Masukan:
+                    </label>
+                    <select id="feedback-category" class="w-full text-xs font-bold p-2.5 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-rose-400 transition">
+                        <option value="Saran Fitur">💡 Saran Fitur Baru</option>
+                        <option value="Laporan Bug / Error">🐛 Laporan Bug / Error</option>
+                        <option value="Komplain">⚠️ Komplain / Kendala</option>
+                        <option value="Pertanyaan">❓ Pertanyaan Umum</option>
+                        <option value="Lainnya">📝 Masukan Lainnya</option>
+                    </select>
+                </div>
+
+                <!-- 4. Isi Pesan / Detail Masukan (Wajib) -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-bold text-stone-700 dark:text-stone-200" data-i18n="feedbackMessageLabel">
+                            Detail Pesan / Masukan (Wajib):
+                        </label>
+                        <span id="feedback-char-count" class="text-[10px] text-stone-400 font-bold">0/3000</span>
+                    </div>
+                    <textarea id="feedback-message" required minlength="5" maxlength="3000" rows="3" placeholder="Tuliskan saran, kritik, atau kendala yang kamu temukan secara jelas..." oninput="updateFeedbackCharCount()" class="w-full text-xs font-medium p-2.5 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-rose-400 transition resize-none"></textarea>
+                </div>
+
+                <!-- Kotak Alert / Status -->
+                <div id="feedback-alert" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+
+                <!-- Tombol Aksi -->
+                <div class="flex items-center gap-2 pt-1">
+                    <button type="button" onclick="closeFeedbackModal()" class="btn-3d flex-1 py-2.5 rounded-xl bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-stone-700 dark:text-stone-200 font-bold text-xs transition" data-i18n="feedbackBtnCancel">
+                        Batal
+                    </button>
+                    <button type="submit" id="btn-submit-feedback" class="btn-3d flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-xs sm:text-sm shadow border border-rose-600 transition flex items-center justify-center gap-1.5" data-i18n="feedbackBtnSubmit">
+                        🚀 Kirim Masukan
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
     <!-- FOOTER -->
-    <footer class="text-center p-3 text-xs text-stone-400 font-medium">
-        Dibuat dengan 💖 untuk melatih kelincahan jari & jempolmu • TypePaws
+    <footer class="text-center p-3 text-xs text-stone-400 font-medium flex flex-wrap items-center justify-center gap-1.5">
+        <span>Dibuat dengan 💖 untuk melatih kelincahan jari & jempolmu • TypePaws •</span>
+        <button onclick="openFeedbackModal()" class="text-rose-500 hover:text-rose-600 dark:text-rose-400 font-bold underline transition" data-i18n="footerFeedback">
+            Beri Masukan / Laporkan Masalah
+        </button>
     </footer>
 
     <!-- ========================================== -->
@@ -1318,7 +1419,20 @@
                 btnInstallNow: "Instal",
                 iosInstallTitle: "Pasang di iPhone / iPad",
                 btnSignIn: "🔑 Masuk (Sign In)",
-                btnSignUp: "📝 Daftar Baru"
+                btnSignUp: "📝 Daftar Baru",
+
+                // Feedback & Laporan Masalah
+                navFeedback: "Masukan",
+                floatingFeedback: "Masukan / Komplain",
+                footerFeedback: "Beri Masukan / Laporkan Masalah",
+                feedbackModalTitle: "Beri Masukan & Laporan",
+                feedbackModalSub: "Punya saran fitur baru, kritik, atau menemukan bug? Kirimkan langsung ke pengembang TypePaws!",
+                feedbackNameLabel: "Nama Pengirim (Opsional):",
+                feedbackEmailLabel: "Email Pengirim (Opsional, agar bisa dibalas):",
+                feedbackCategoryLabel: "Kategori Masukan:",
+                feedbackMessageLabel: "Detail Pesan / Masukan (Wajib):",
+                feedbackBtnSubmit: "🚀 Kirim Masukan",
+                feedbackBtnCancel: "Batal"
             },
             en: {
                 navSubtitle: "Type Fast & Have Fun!",
@@ -1422,7 +1536,20 @@
                 btnInstallNow: "Install",
                 iosInstallTitle: "Install on iPhone / iPad",
                 btnSignIn: "🔑 Sign In",
-                btnSignUp: "📝 Register"
+                btnSignUp: "📝 Register",
+
+                // Feedback & Bug Report
+                navFeedback: "Feedback",
+                floatingFeedback: "Feedback / Bug Report",
+                footerFeedback: "Send Feedback / Report Bug",
+                feedbackModalTitle: "Feedback & Bug Report",
+                feedbackModalSub: "Have a new feature idea, feedback, or found a bug? Send it directly to TypePaws developers!",
+                feedbackNameLabel: "Your Name (Optional):",
+                feedbackEmailLabel: "Your Email (Optional, to reply):",
+                feedbackCategoryLabel: "Feedback Category:",
+                feedbackMessageLabel: "Message Details (Required):",
+                feedbackBtnSubmit: "🚀 Send Feedback",
+                feedbackBtnCancel: "Cancel"
             }
         };
 
@@ -3875,6 +4002,105 @@
                     el.classList.remove('bg-pink-500', 'text-white', 'border-pink-700', 'scale-110', 'shadow-md');
                 }
             });
+        }
+
+        // --- 17. FITUR MASUKAN & KOMPLAIN (FEEDBACK GMAIL) ---
+        function openFeedbackModal() {
+            document.getElementById('modal-feedback').classList.remove('hidden');
+            const alertBox = document.getElementById('feedback-alert');
+            alertBox.classList.add('hidden');
+
+            // Isi otomatis nama dari profil jika ada
+            const nameInput = document.getElementById('feedback-name');
+            if (nameInput && !nameInput.value && state.profile && state.profile.mascotName) {
+                nameInput.value = state.profile.mascotName !== 'Mochi' ? state.profile.mascotName : '';
+            }
+
+            // Isi otomatis email jika sedang login firebase
+            const emailInput = document.getElementById('feedback-email');
+            if (emailInput && !emailInput.value && currentFirebaseUser && currentFirebaseUser.email) {
+                emailInput.value = currentFirebaseUser.email;
+            }
+
+            updateFeedbackCharCount();
+            setTimeout(() => document.getElementById('feedback-message').focus(), 150);
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('modal-feedback').classList.add('hidden');
+        }
+
+        function updateFeedbackCharCount() {
+            const msg = document.getElementById('feedback-message').value || '';
+            const counter = document.getElementById('feedback-char-count');
+            if (counter) counter.innerText = `${msg.length}/3000`;
+        }
+
+        async function submitFeedback(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('feedback-name').value.trim();
+            const email = document.getElementById('feedback-email').value.trim();
+            const category = document.getElementById('feedback-category').value;
+            const message = document.getElementById('feedback-message').value.trim();
+            const submitBtn = document.getElementById('btn-submit-feedback');
+            const alertBox = document.getElementById('feedback-alert');
+
+            if (!message || message.length < 5) {
+                showFeedbackAlert(state.lang === 'en' ? 'Please write at least 5 characters.' : 'Pesan wajib diisi minimal 5 karakter.', 'rose');
+                return;
+            }
+
+            // Info perangkat untuk mempermudah developer mendiagnosa masalah
+            const deviceInfo = `Mode: ${state.deviceMode.toUpperCase()} | Layar: ${window.innerWidth}x${window.innerHeight} | Browser: ${navigator.userAgent.slice(0, 90)}`;
+
+            submitBtn.disabled = true;
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = `⏳ <span class="animate-pulse">${state.lang === 'en' ? 'Sending...' : 'Mengirim...'}</span>`;
+            alertBox.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        category: category,
+                        message: message,
+                        deviceInfo: deviceInfo
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    showFeedbackAlert(data.message, 'emerald');
+                    playSound('win');
+                    if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 60 });
+                    document.getElementById('feedback-message').value = '';
+                    updateFeedbackCharCount();
+                    setTimeout(() => {
+                        closeFeedbackModal();
+                    }, 2200);
+                } else {
+                    showFeedbackAlert(data.message || (state.lang === 'en' ? 'Failed to send feedback.' : 'Gagal mengirim masukan.'), 'rose');
+                    playSound('error');
+                }
+            } catch (err) {
+                showFeedbackAlert(state.lang === 'en' ? 'Network error. Please check your connection.' : 'Gagal terhubung ke server. Periksa koneksi internetmu.', 'rose');
+                playSound('error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        function showFeedbackAlert(msg, color) {
+            const el = document.getElementById('feedback-alert');
+            el.innerText = msg;
+            el.className = `p-3 rounded-xl text-xs font-bold text-center bg-${color}-100 text-${color}-800 border border-${color}-300`;
+            el.classList.remove('hidden');
         }
     </script>
 </body>
