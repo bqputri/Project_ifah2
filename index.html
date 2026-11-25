@@ -1698,6 +1698,11 @@
                 const res = await fetch('/api/config');
                 const data = await res.json();
 
+                // Web3Forms Access Key
+                if (data.web3formsAccessKey) {
+                    state.web3formsAccessKey = data.web3formsAccessKey;
+                }
+
                 // Inisialisasi Firebase jika terkonfigurasi di server/Vercel
                 if (data.success && data.firebaseConfigured && data.firebaseConfig && window.firebase) {
                     if (!firebase.apps || !firebase.apps.length) {
@@ -3480,7 +3485,13 @@
                     card.onclick = () => startLevel(lvl.id);
                     let displayLvlTitle = lvl.title.split(': ')[1] || lvl.title;
                     if (mode === 'hp') {
-                        displayLvlTitle = displayLvlTitle.replace(/\s*Home\s*Row\s*/gi, ' ').replace(/\(F\s*&\s*J\)/gi, '').replace(/\s+/g, ' ').trim();
+                        displayLvlTitle = displayLvlTitle
+                            .replace(/Pemanasan\s+Home\s+Row\s*\([^)]*\)/gi, 'Pemanasan Dua Jempol')
+                            .replace(/Home\s+Row\s+Warmup\s*\([^)]*\)/gi, 'Two Thumbs Warmup')
+                            .replace(/\s*Home\s*Row\s*/gi, ' Dua Jempol ')
+                            .replace(/\(F\s*&\s*J\)/gi, '')
+                            .replace(/\s+/g, ' ')
+                            .trim();
                     }
                     card.innerHTML = `
                         <div class="text-[11px] font-bold uppercase tracking-wider opacity-70">Level ${lvl.id}</div>
@@ -3545,9 +3556,15 @@
 
             let titleText = lvlObj.title;
             if (state.deviceMode === 'hp') {
-                titleText = titleText.replace(/\s*Home\s*Row\s*/gi, ' ').replace(/\(F\s*&\s*J\)/gi, '').replace(/\s+/g, ' ').trim();
+                titleText = titleText
+                    .replace(/Pemanasan\s+Home\s+Row\s*\([^)]*\)/gi, 'Pemanasan Dua Jempol')
+                    .replace(/Home\s+Row\s+Warmup\s*\([^)]*\)/gi, 'Two Thumbs Warmup')
+                    .replace(/\s*Home\s*Row\s*/gi, ' Dua Jempol ')
+                    .replace(/\(F\s*&\s*J\)/gi, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
             }
-            document.getElementById('game-mode-badge').innerText = `${titleText} (${state.deviceMode === 'hp' ? 'HP' : 'Keyboard'})`;
+            document.getElementById('game-mode-badge').innerText = titleText;
             document.getElementById('hud-score-box').classList.add('hidden');
             document.getElementById('live-timer').innerText = '0s';
 
@@ -4053,47 +4070,94 @@
 
             // Info perangkat untuk mempermudah developer mendiagnosa masalah
             const deviceInfo = `Mode: ${state.deviceMode.toUpperCase()} | Layar: ${window.innerWidth}x${window.innerHeight} | Browser: ${navigator.userAgent.slice(0, 90)}`;
+            const accessKey = state.web3formsAccessKey || 'c09d558c-49ea-43b1-94a7-ed9540d0efcd';
 
             submitBtn.disabled = true;
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.innerHTML = `⏳ <span class="animate-pulse">${state.lang === 'en' ? 'Sending...' : 'Mengirim...'}</span>`;
             alertBox.classList.add('hidden');
 
+            const subjectTag = category === 'Laporan Bug / Error' ? '🐛 [BUG REPORT]' :
+                               category === 'Komplain' ? '⚠️ [KOMPLAIN]' :
+                               category === 'Saran Fitur' ? '💡 [SARAN FITUR]' : '📬 [MASUKAN]';
+            const subject = `${subjectTag} dari ${name || 'Pengguna'} - TypePaws`;
+            const timestamp = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+
+            const payload = {
+                access_key: accessKey,
+                subject: subject,
+                from_name: `TypePaws App (${name || 'Pengguna'})`,
+                name: name || 'Pengguna TypePaws',
+                email: email || 'no-reply@typepaws.app',
+                category: category,
+                message: message,
+                device_info: deviceInfo,
+                timestamp: `${timestamp} WIB`
+            };
+
+            let sentSuccess = false;
+            let successMessage = state.lang === 'en' 
+                ? 'Thank you! Your feedback has been sent successfully. 💖' 
+                : 'Masukan berhasil dikirim! Terima kasih banyak atas bantuan dan saranmu untuk TypePaws. 💖';
+
             try {
-                const res = await fetch('/api/feedback', {
+                // 1. Coba kirim langsung ke Web3Forms API dari browser
+                const web3Res = await fetch('https://api.web3forms.com/submit', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        category: category,
-                        message: message,
-                        deviceInfo: deviceInfo
-                    })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
                 });
 
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    showFeedbackAlert(data.message, 'emerald');
-                    playSound('win');
-                    if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 60 });
-                    document.getElementById('feedback-message').value = '';
-                    updateFeedbackCharCount();
-                    setTimeout(() => {
-                        closeFeedbackModal();
-                    }, 2200);
+                const web3Data = await web3Res.json();
+                if (web3Res.ok && web3Data.success) {
+                    sentSuccess = true;
                 } else {
-                    showFeedbackAlert(data.message || (state.lang === 'en' ? 'Failed to send feedback.' : 'Gagal mengirim masukan.'), 'rose');
-                    playSound('error');
+                    throw new Error(web3Data.message || 'Web3Forms client submit failed');
                 }
-            } catch (err) {
-                showFeedbackAlert(state.lang === 'en' ? 'Network error. Please check your connection.' : 'Gagal terhubung ke server. Periksa koneksi internetmu.', 'rose');
-                playSound('error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
+            } catch (clientErr) {
+                console.warn('[Feedback] Direct submit failed, attempting fallback endpoint...', clientErr);
+                try {
+                    // 2. Fallback via serverless endpoint /api/feedback
+                    const fbRes = await fetch('/api/feedback', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: name,
+                            email: email,
+                            category: category,
+                            message: message,
+                            deviceInfo: deviceInfo
+                        })
+                    });
+                    const fbData = await fbRes.json();
+                    if (fbRes.ok && fbData.success) {
+                        sentSuccess = true;
+                        if (fbData.message) successMessage = fbData.message;
+                    }
+                } catch (fallbackErr) {
+                    console.error('[Feedback] Fallback error:', fallbackErr);
+                }
             }
+
+            if (sentSuccess) {
+                showFeedbackAlert(successMessage, 'emerald');
+                playSound('win');
+                if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 60 });
+                document.getElementById('feedback-message').value = '';
+                updateFeedbackCharCount();
+                setTimeout(() => {
+                    closeFeedbackModal();
+                }, 2200);
+            } else {
+                showFeedbackAlert(state.lang === 'en' ? 'Failed to send feedback. Please check your internet connection.' : 'Gagal mengirim masukan. Pastikan koneksi internet stabil atau coba sesaat lagi.', 'rose');
+                playSound('error');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
         }
 
         function showFeedbackAlert(msg, color) {

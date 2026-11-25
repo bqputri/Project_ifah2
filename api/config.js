@@ -44,8 +44,12 @@ module.exports = function handler(req, res) {
     const supabaseUrl = process.env.SUPABASE_URL || '';
     const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
 
+    // 3. Web3Forms Access Key untuk Formulir Masukan
+    const web3formsAccessKey = process.env.WEB3FORMS_ACCESS_KEY || 'c09d558c-49ea-43b1-94a7-ed9540d0efcd';
+
     return res.status(200).json({
         success: true,
+        web3formsAccessKey: web3formsAccessKey,
         firebaseConfigured: firebaseConfigured,
         firebaseConfig: firebaseConfigured ? firebaseConfig : null,
         supabaseConfigured: Boolean(supabaseUrl && supabaseAnonKey && supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY'),
