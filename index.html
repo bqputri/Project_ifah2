@@ -3351,10 +3351,14 @@
                         : 'bg-sky-50 border-sky-400 text-sky-900 ring-2 ring-sky-300'
                     }`;
                     card.onclick = () => startLevel(lvl.id);
+                    let displayLvlTitle = lvl.title.split(': ')[1] || lvl.title;
+                    if (mode === 'hp') {
+                        displayLvlTitle = displayLvlTitle.replace(/\s*Home\s*Row\s*/gi, ' ').replace(/\(F\s*&\s*J\)/gi, '').replace(/\s+/g, ' ').trim();
+                    }
                     card.innerHTML = `
                         <div class="text-[11px] font-bold uppercase tracking-wider opacity-70">Level ${lvl.id}</div>
                         <div class="text-2xl my-1">${isCompleted ? '⭐' : '🎯'}</div>
-                        <div class="text-xs font-bold line-clamp-1">${lvl.title.split(': ')[1] || lvl.title}</div>
+                        <div class="text-xs font-bold line-clamp-1">${displayLvlTitle}</div>
                     `;
                 } else {
                     card.className = "rounded-2xl p-3 border-2 border-stone-200 bg-stone-100 text-stone-400 flex flex-col justify-between text-center opacity-75 cursor-not-allowed";
@@ -3412,7 +3416,11 @@
             state.targetText = lvlObj.text;
             resetGameSession();
 
-            document.getElementById('game-mode-badge').innerText = `${lvlObj.title} (${state.deviceMode === 'hp' ? 'HP' : 'Keyboard'})`;
+            let titleText = lvlObj.title;
+            if (state.deviceMode === 'hp') {
+                titleText = titleText.replace(/\s*Home\s*Row\s*/gi, ' ').replace(/\(F\s*&\s*J\)/gi, '').replace(/\s+/g, ' ').trim();
+            }
+            document.getElementById('game-mode-badge').innerText = `${titleText} (${state.deviceMode === 'hp' ? 'HP' : 'Keyboard'})`;
             document.getElementById('hud-score-box').classList.add('hidden');
             document.getElementById('live-timer').innerText = '0s';
 

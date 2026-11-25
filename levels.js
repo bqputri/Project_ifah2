@@ -606,122 +606,122 @@ window.LEVEL_DATA = {
     "hp": [
       {
         "id": 1,
-        "title": "Level 1: Pemanasan Home Row (F & J)",
-        "desc": "Level 1 baris tengah & huruf dasar",
+        "title": "Level 1: Pemanasan Dua Jempol",
+        "desc": "Level 1 kata dasar & sentuhan jempol",
         "text": "aku dia ini itu ada"
       },
       {
         "id": 2,
-        "title": "Level 2: Menambah D dan K",
-        "desc": "Level 2 baris tengah & huruf dasar",
+        "title": "Level 2: Sapaan Harian",
+        "desc": "Level 2 kata dasar & sentuhan jempol",
         "text": "halo pagi siang sore malam"
       },
       {
         "id": 3,
-        "title": "Level 3: Empat Jari (S & L)",
-        "desc": "Level 3 baris tengah & huruf dasar",
+        "title": "Level 3: Obrolan Singkat",
+        "desc": "Level 3 kata dasar & sentuhan jempol",
         "text": "kamu lagi dimana nih sekarang"
       },
       {
         "id": 4,
-        "title": "Level 4: Baris Tengah Penuh",
-        "desc": "Level 4 baris tengah & huruf dasar",
+        "title": "Level 4: Percakapan Santai",
+        "desc": "Level 4 kata dasar & sentuhan jempol",
         "text": "aku sudah sampai di depan rumah"
       },
       {
         "id": 5,
         "title": "Level 5: Tier 1: Dasar - #5",
-        "desc": "Level 5 baris tengah & huruf dasar",
+        "desc": "Level 5 kata dasar & sentuhan jempol",
         "text": "nanti sore kita jadi main kan"
       },
       {
         "id": 6,
         "title": "Level 6: Tier 1: Dasar - #6",
-        "desc": "Level 6 baris tengah & huruf dasar",
+        "desc": "Level 6 kata dasar & sentuhan jempol",
         "text": "ada asa kas lada fals asal jala kala salak"
       },
       {
         "id": 7,
         "title": "Level 7: Tier 1: Dasar - #7",
-        "desc": "Level 7 baris tengah & huruf dasar",
+        "desc": "Level 7 kata dasar & sentuhan jempol",
         "text": "gula jawa dan rasa kelapa muda yang enak"
       },
       {
         "id": 8,
         "title": "Level 8: Tier 1: Dasar - #8",
-        "desc": "Level 8 baris tengah & huruf dasar",
+        "desc": "Level 8 kata dasar & sentuhan jempol",
         "text": "kue kering ibu rasa keju dan susu murni"
       },
       {
         "id": 9,
         "title": "Level 9: Tier 1: Dasar - #9",
-        "desc": "Level 9 baris tengah & huruf dasar",
+        "desc": "Level 9 kata dasar & sentuhan jempol",
         "text": "teh hangat manis dan roti keju panggang"
       },
       {
         "id": 10,
         "title": "Level 10: Pencapaian Tier 1",
-        "desc": "Level 10 baris tengah & huruf dasar",
+        "desc": "Level 10 kata dasar & sentuhan jempol",
         "text": "burung dara terbang tinggi di atas sawah hijau"
       },
       {
         "id": 11,
         "title": "Level 11: Tier 1: Dasar - #11",
-        "desc": "Level 11 baris tengah & huruf dasar",
+        "desc": "Level 11 kata dasar & sentuhan jempol",
         "text": "pohon kelapa tumbuh subur di tepi pantai indah"
       },
       {
         "id": 12,
         "title": "Level 12: Tier 1: Dasar - #12",
-        "desc": "Level 12 baris tengah & huruf dasar",
+        "desc": "Level 12 kata dasar & sentuhan jempol",
         "text": "kucing kecil bermain bola benang dengan lincah"
       },
       {
         "id": 13,
         "title": "Level 13: Tier 1: Dasar - #13",
-        "desc": "Level 13 baris tengah & huruf dasar",
+        "desc": "Level 13 kata dasar & sentuhan jempol",
         "text": "anjing setia menjaga rumah saat malam tiba"
       },
       {
         "id": 14,
         "title": "Level 14: Tier 1: Dasar - #14",
-        "desc": "Level 14 baris tengah & huruf dasar",
+        "desc": "Level 14 kata dasar & sentuhan jempol",
         "text": "ikan mas berenang riang di kolam air jernih"
       },
       {
         "id": 15,
         "title": "Level 15: Tier 1: Dasar - #15",
-        "desc": "Level 15 baris tengah & huruf dasar",
+        "desc": "Level 15 kata dasar & sentuhan jempol",
         "text": "bunga mawar merah mekar semerbak di taman asri"
       },
       {
         "id": 16,
         "title": "Level 16: Tier 1: Dasar - #16",
-        "desc": "Level 16 baris tengah & huruf dasar",
+        "desc": "Level 16 kata dasar & sentuhan jempol",
         "text": "sepeda baru adik berwarna merah dan kuning cerah"
       },
       {
         "id": 17,
         "title": "Level 17: Tier 1: Dasar - #17",
-        "desc": "Level 17 baris tengah & huruf dasar",
+        "desc": "Level 17 kata dasar & sentuhan jempol",
         "text": "sarapan pagi bersama keluarga terasa sangat hangat"
       },
       {
         "id": 18,
         "title": "Level 18: Tier 1: Dasar - #18",
-        "desc": "Level 18 baris tengah & huruf dasar",
+        "desc": "Level 18 kata dasar & sentuhan jempol",
         "text": "anak kelinci melompat ceria di padang rumput hijau"
       },
       {
         "id": 19,
         "title": "Level 19: Tier 1: Dasar - #19",
-        "desc": "Level 19 baris tengah & huruf dasar",
+        "desc": "Level 19 kata dasar & sentuhan jempol",
         "text": "hujan rintik membasahi dedaunan di kebun belakang"
       },
       {
         "id": 20,
         "title": "Level 20: Kelulusan Tier 1",
-        "desc": "Level 20 baris tengah & huruf dasar",
+        "desc": "Level 20 kata dasar & sentuhan jempol",
         "text": "angin sepoi berhembus lembut menyapa senja yang damai"
       },
       {
@@ -1812,122 +1812,122 @@ window.LEVEL_DATA = {
     "hp": [
       {
         "id": 1,
-        "title": "Level 1: Home Row Warmup (F & J)",
-        "desc": "Level 1 home row & basics",
+        "title": "Level 1: Two Thumbs Warmup",
+        "desc": "Level 1 basic mobile typing",
         "text": "he is on my cat dog"
       },
       {
         "id": 2,
-        "title": "Level 2: Adding D and K",
-        "desc": "Level 2 home row & basics",
+        "title": "Level 2: Daily Greetings",
+        "desc": "Level 2 basic mobile typing",
         "text": "hello good morning afternoon night"
       },
       {
         "id": 3,
-        "title": "Level 3: Four Fingers (S & L)",
-        "desc": "Level 3 home row & basics",
+        "title": "Level 3: Quick Chats",
+        "desc": "Level 3 basic mobile typing",
         "text": "where are you right now friend"
       },
       {
         "id": 4,
-        "title": "Level 4: Full Home Row",
-        "desc": "Level 4 home row & basics",
+        "title": "Level 4: Casual Phrases",
+        "desc": "Level 4 basic mobile typing",
         "text": "I have arrived at the gate"
       },
       {
         "id": 5,
         "title": "Level 5: Tier 1: Basics - #5",
-        "desc": "Level 5 home row & basics",
+        "desc": "Level 5 basic mobile typing",
         "text": "let us meet this evening"
       },
       {
         "id": 6,
         "title": "Level 6: Tier 1: Basics - #6",
-        "desc": "Level 6 home row & basics",
+        "desc": "Level 6 basic mobile typing",
         "text": "sad lad asks all flags shall fall glad"
       },
       {
         "id": 7,
         "title": "Level 7: Tier 1: Basics - #7",
-        "desc": "Level 7 home row & basics",
+        "desc": "Level 7 basic mobile typing",
         "text": "all dads ask a lad as a flash falls"
       },
       {
         "id": 8,
         "title": "Level 8: Tier 1: Basics - #8",
-        "desc": "Level 8 home row & basics",
+        "desc": "Level 8 basic mobile typing",
         "text": "pure white milk and sweet ripe fruits"
       },
       {
         "id": 9,
         "title": "Level 9: Tier 1: Basics - #9",
-        "desc": "Level 9 home row & basics",
+        "desc": "Level 9 basic mobile typing",
         "text": "hot sweet tea and fresh butter bread"
       },
       {
         "id": 10,
         "title": "Level 10: Tier 1 Milestone",
-        "desc": "Level 10 home row & basics",
+        "desc": "Level 10 basic mobile typing",
         "text": "birds fly high above the green forest"
       },
       {
         "id": 11,
         "title": "Level 11: Tier 1: Basics - #11",
-        "desc": "Level 11 home row & basics",
+        "desc": "Level 11 basic mobile typing",
         "text": "tall palm trees grow along the sunny coast"
       },
       {
         "id": 12,
         "title": "Level 12: Tier 1: Basics - #12",
-        "desc": "Level 12 home row & basics",
+        "desc": "Level 12 basic mobile typing",
         "text": "cute little cat plays with a wool ball"
       },
       {
         "id": 13,
         "title": "Level 13: Tier 1: Basics - #13",
-        "desc": "Level 13 home row & basics",
+        "desc": "Level 13 basic mobile typing",
         "text": "friendly dog guards the garden at night"
       },
       {
         "id": 14,
         "title": "Level 14: Tier 1: Basics - #14",
-        "desc": "Level 14 home row & basics",
+        "desc": "Level 14 basic mobile typing",
         "text": "golden fish swim happily in clear water"
       },
       {
         "id": 15,
         "title": "Level 15: Tier 1: Basics - #15",
-        "desc": "Level 15 home row & basics",
+        "desc": "Level 15 basic mobile typing",
         "text": "red roses bloom sweetly in the sunny park"
       },
       {
         "id": 16,
         "title": "Level 16: Tier 1: Basics - #16",
-        "desc": "Level 16 home row & basics",
+        "desc": "Level 16 basic mobile typing",
         "text": "little brother rides his bright yellow bike"
       },
       {
         "id": 17,
         "title": "Level 17: Tier 1: Basics - #17",
-        "desc": "Level 17 home row & basics",
+        "desc": "Level 17 basic mobile typing",
         "text": "warm morning breakfast with loving family"
       },
       {
         "id": 18,
         "title": "Level 18: Tier 1: Basics - #18",
-        "desc": "Level 18 home row & basics",
+        "desc": "Level 18 basic mobile typing",
         "text": "little rabbit hops cheerfully on green grass"
       },
       {
         "id": 19,
         "title": "Level 19: Tier 1: Basics - #19",
-        "desc": "Level 19 home row & basics",
+        "desc": "Level 19 basic mobile typing",
         "text": "gentle raindrops tap on the bedroom window"
       },
       {
         "id": 20,
         "title": "Level 20: Tier 1 Graduation",
-        "desc": "Level 20 home row & basics",
+        "desc": "Level 20 basic mobile typing",
         "text": "soft evening breeze welcomes the peaceful night"
       },
       {
