@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TypePaws - Latihan Mengetik Cepat & Lucu</title>
+
+    <!-- Progressive Web App (PWA) Manifest & Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#F59E0B">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TypePaws">
+    <link rel="apple-touch-icon" href="/icons/icon-apple-touch.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -298,6 +309,11 @@
                 <span id="nav-profile-avatar">🐱</span>
                 <span id="nav-profile-name" class="hidden md:inline max-w-[90px] truncate">Mochi</span>
                 <span id="nav-profile-level" class="bg-amber-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-extrabold">Lv.1</span>
+            </button>
+
+            <!-- 1B. Tombol Pasang PWA (Muncul jika browser mendukung install) -->
+            <button onclick="triggerInstallApp()" id="btn-pwa-install" class="hidden btn-3d px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs sm:text-sm font-bold flex items-center gap-1 shadow border border-emerald-600 transition animate-bounce" title="Pasang TypePaws di HP / Laptop">
+                📲 <span class="hidden sm:inline" data-i18n="btnInstallApp">Pasang App</span>
             </button>
 
             <!-- 2. Tombol AI Generator -->
@@ -1089,6 +1105,52 @@
 
     </main>
 
+    <!-- BANNER PWA INSTALL (Muncul otomatis jika belum terpasang) -->
+    <div id="pwa-install-banner" class="hidden fixed bottom-4 left-4 right-4 max-w-md mx-auto bg-white/95 dark:bg-stone-800/95 backdrop-blur-md p-3.5 rounded-3xl border-2 border-emerald-300 dark:border-emerald-600 shadow-2xl z-40 flex items-center justify-between gap-3 transition-all animate-bounce">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-rose-400 flex items-center justify-center text-2xl shadow-sm flex-shrink-0">
+                🐾
+            </div>
+            <div>
+                <h4 class="font-bold text-sm text-stone-800 dark:text-stone-100 leading-tight" data-i18n="installBannerTitle">Pasang TypePaws</h4>
+                <p class="text-[11px] text-stone-500 dark:text-stone-300 leading-snug" data-i18n="installBannerDesc">Mainkan lebih cepat, layar penuh & offline!</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button onclick="triggerInstallApp()" class="btn-3d px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black shadow" data-i18n="btnInstallNow">
+                Instal
+            </button>
+            <button onclick="dismissInstallBanner()" class="w-7 h-7 rounded-xl bg-stone-100 dark:bg-stone-700 text-stone-500 hover:bg-stone-200 text-xs font-bold" title="Tutup">
+                ✕
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL PANDUAN INSTALASI IOS (SAFARI) -->
+    <div id="modal-ios-install" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+        <div class="bg-white dark:bg-stone-800 w-full max-w-md rounded-3xl p-5 border-2 border-pink-300 dark:border-pink-600 shadow-2xl relative">
+            <button onclick="closeIosInstallModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 font-bold hover:bg-stone-200">✕</button>
+            <div class="text-center mb-4">
+                <div class="w-14 h-14 bg-pink-100 dark:bg-pink-900/50 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-2">📲</div>
+                <h3 class="text-lg font-black text-stone-800 dark:text-stone-100" data-i18n="iosInstallTitle">Pasang di iPhone / iPad</h3>
+                <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">Hanya 2 langkah mudah untuk memasang TypePaws ke Layar Utama iOS:</p>
+            </div>
+            <div class="space-y-3 bg-amber-50 dark:bg-stone-900/50 p-4 rounded-2xl border border-amber-200 dark:border-stone-700 text-xs text-stone-700 dark:text-stone-200 font-medium">
+                <div class="flex items-center gap-3">
+                    <span class="w-7 h-7 rounded-xl bg-amber-400 text-amber-950 font-black flex items-center justify-center flex-shrink-0">1</span>
+                    <span>Ketuk tombol <strong>Bagikan</strong> (ikon kotak dengan panah ke atas <span class="text-base">📤</span>) di bilah navigasi Safari.</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-7 h-7 rounded-xl bg-amber-400 text-amber-950 font-black flex items-center justify-center flex-shrink-0">2</span>
+                    <span>Gulir ke bawah pada menu, lalu pilih <strong>"Tambahkan ke Layar Utama" (Add to Home Screen)</strong> 📲.</span>
+                </div>
+            </div>
+            <button onclick="closeIosInstallModal()" class="mt-4 w-full py-2.5 rounded-2xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm shadow">
+                Mengerti! 🐾
+            </button>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="text-center p-3 text-xs text-stone-400 font-medium">
         Dibuat dengan 💖 untuk melatih kelincahan jari & jempolmu • TypePaws
@@ -1195,6 +1257,12 @@
                 backupHint: "Cadangkan / Pindahkan Progres:",
                 cloudTitle: "☁️ Sinkronisasi Multi-Perangkat",
                 cloudDesc: "Simpan skor dan pencapaianmu di cloud (didukung Supabase Auth & Database). Tetap berfungsi penuh dalam mode tamu.",
+                // PWA
+                btnInstallApp: "Pasang App",
+                installBannerTitle: "Pasang TypePaws",
+                installBannerDesc: "Mainkan lebih cepat, layar penuh & offline!",
+                btnInstallNow: "Instal",
+                iosInstallTitle: "Pasang di iPhone / iPad",
                 btnSignIn: "🔑 Masuk (Sign In)",
                 btnSignUp: "📝 Daftar Baru"
             },
@@ -1293,6 +1361,12 @@
                 backupHint: "Backup / Transfer Progress:",
                 cloudTitle: "☁️ Multi-Device Cloud Sync",
                 cloudDesc: "Save your scores and achievements to the cloud (powered by Supabase). Works seamlessly offline as guest.",
+                // PWA
+                btnInstallApp: "Install App",
+                installBannerTitle: "Install TypePaws",
+                installBannerDesc: "Play faster, full-screen & offline!",
+                btnInstallNow: "Install",
+                iosInstallTitle: "Install on iPhone / iPad",
                 btnSignIn: "🔑 Sign In",
                 btnSignUp: "📝 Register"
             }
@@ -1574,6 +1648,7 @@
             updateProfileBadges();
 
             initCloudConfig();
+            initPwa();
 
             // Cek jika membuka lewat link undangan room balapan ?room=KODE
             const urlParams = new URLSearchParams(window.location.search);
@@ -1587,6 +1662,109 @@
                 }, 400);
             }
         };
+
+        // --- 5B. LOGIKA PWA (SERVICE WORKER & INSTALL APP) ---
+        let deferredInstallPrompt = null;
+
+        function initPwa() {
+            // 1. Registrasi Service Worker untuk Offline Support & Caching
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(reg => {
+                            console.log('🐾 [PWA] Service Worker aktif:', reg.scope);
+                        })
+                        .catch(err => {
+                            console.warn('🐾 [PWA] Registrasi Service Worker gagal:', err);
+                        });
+                });
+            }
+
+            // 2. Cek apakah sudah berjalan di mode terpasang (Standalone / PWA window)
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                                 window.navigator.standalone === true ||
+                                 document.referrer.includes('android-app://');
+
+            if (isStandalone) {
+                console.log('🐾 [PWA] TypePaws berjalan dalam mode terpasang (Standalone)');
+                hideInstallPromptUI();
+                return;
+            }
+
+            // 3. Tangkap event beforeinstallprompt (Chrome / Edge / Android)
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredInstallPrompt = e;
+                showInstallPromptUI();
+            });
+
+            // 4. Deteksi iOS Safari (yang tidak mendukung beforeinstallprompt)
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIos && !isStandalone) {
+                const bannerDismissed = localStorage.getItem('typepaws_pwa_dismissed');
+                const btn = document.getElementById('btn-pwa-install');
+                if (btn) btn.classList.remove('hidden');
+                if (!bannerDismissed) {
+                    const banner = document.getElementById('pwa-install-banner');
+                    if (banner) banner.classList.remove('hidden');
+                }
+            }
+
+            // 5. Tangkap saat instalasi selesai
+            window.addEventListener('appinstalled', () => {
+                deferredInstallPrompt = null;
+                hideInstallPromptUI();
+                alert('🎉 TypePaws berhasil dipasang di perangkatmu! Selamat bermain!');
+            });
+        }
+
+        function showInstallPromptUI() {
+            const btn = document.getElementById('btn-pwa-install');
+            if (btn) btn.classList.remove('hidden');
+
+            const bannerDismissed = localStorage.getItem('typepaws_pwa_dismissed');
+            if (!bannerDismissed) {
+                const banner = document.getElementById('pwa-install-banner');
+                if (banner) banner.classList.remove('hidden');
+            }
+        }
+
+        function hideInstallPromptUI() {
+            const btn = document.getElementById('btn-pwa-install');
+            if (btn) btn.classList.add('hidden');
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.classList.add('hidden');
+        }
+
+        function dismissInstallBanner() {
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.classList.add('hidden');
+            localStorage.setItem('typepaws_pwa_dismissed', 'true');
+        }
+
+        async function triggerInstallApp() {
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                const choice = await deferredInstallPrompt.userChoice;
+                if (choice.outcome === 'accepted') {
+                    hideInstallPromptUI();
+                }
+                deferredInstallPrompt = null;
+            } else {
+                const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIos) {
+                    const modal = document.getElementById('modal-ios-install');
+                    if (modal) modal.classList.remove('hidden');
+                } else {
+                    alert('Untuk memasang TypePaws di laptop/HP:\n1. Buka menu browser (ikon titik tiga ⋮ atau tombol pasang di bilah alamat)\n2. Pilih "Instal TypePaws" atau "Tambahkan ke Layar Utama"');
+                }
+            }
+        }
+
+        function closeIosInstallModal() {
+            const modal = document.getElementById('modal-ios-install');
+            if (modal) modal.classList.add('hidden');
+        }
 
         function loadSavedSettings() {
             const savedLang = localStorage.getItem('typepaws_lang');

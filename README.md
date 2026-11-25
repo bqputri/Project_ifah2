@@ -41,6 +41,12 @@ TypePaws adalah aplikasi web latihan mengetik modern dan interaktif bertema kuci
 - Gemini AI membuatkan kalimat latihan mengetik yang natural, menarik, dan siap diketik dalam pilihan bahasa Indonesia atau Inggris.
 - API Key tersimpan aman di server backend (`process.env.GEMINI_API_KEY`) dan tidak pernah terekspos ke browser pengguna.
 
+### 7. 📲 Progressive Web App (PWA)
+- **Dapat Diinstal di Semua Perangkat**: Mendukung instalasi di HP (Android & iOS Safari) serta laptop/komputer (Chrome, Edge, Windows, Mac).
+- **Tampilan Standalone (Layar Penuh)**: Berjalan mandiri tanpa bilah URL browser, memberikan pengalaman selayaknya aplikasi native.
+- **Dukungan Offline**: Menggunakan Service Worker (`sw.js`) untuk menyimpan cache aset inti sehingga dapat dimainkan kapan saja meskipun tanpa koneksi internet.
+- **Tombol & Banner Install**: Tersedia tombol dan banner "Pasang App" yang muncul otomatis di browser yang mendukung (Chrome/Edge/Android), lengkap dengan panduan untuk pengguna iPhone/iPad.
+
 ---
 
 ## 📁 Struktur Proyek
@@ -51,7 +57,14 @@ Aniswatul Latifah/
 │   ├── config.js           # Endpoint konfigurasi publik klien (Firebase Web Config)
 │   ├── generate.js         # Endpoint Serverless Gemini AI
 │   └── rooms.js            # Endpoint Serverless Room Manager Balapan Online (Fallback)
+├── icons/
+│   ├── icon-192x192.png    # Ikon PWA 192x192
+│   ├── icon-512x512.png    # Ikon PWA 512x512
+│   ├── icon-apple-touch.png # Ikon Apple Touch
+│   └── icon.svg            # Ikon Scalable Vector Graphics
 ├── levels.js               # Data 100 Level Petualangan TypePaws (Mudah -> Sulit)
+├── manifest.json           # Web App Manifest PWA
+├── sw.js                   # Service Worker PWA (Cache & Offline Strategy)
 ├── .env                    # Variabel environment lokal (API Key - diabaikan Git)
 ├── .env.example            # Template contoh environment
 ├── .gitignore              # Memastikan .env & node_modules tidak ter-upload ke Git

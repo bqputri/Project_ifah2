@@ -1,0 +1,90 @@
+{
+  "id": "/?source=pwa",
+  "name": "TypePaws - Latihan Mengetik Cepat & Lucu",
+  "short_name": "TypePaws",
+  "description": "Aplikasi latihan mengetik interaktif bertema kucing lucu dengan 100 level, mode tantangan waktu, AI generator, dan balapan online real-time.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#FFFDF0",
+  "theme_color": "#F59E0B",
+  "lang": "id",
+  "categories": [
+    "games",
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-apple-touch.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mode Petualangan",
+      "short_name": "Petualangan",
+      "description": "Mulai latihan mengetik bertahap dari Level 1 sampai 100",
+      "url": "/?mode=level",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Balapan Online",
+      "short_name": "Balapan",
+      "description": "Buat atau gabung room balapan mengetik bersama teman",
+      "url": "/?mode=race",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Tantangan Waktu",
+      "short_name": "Time Attack",
+      "description": "Latihan mengetik cepat dengan batas waktu dan Mode On-Fire",
+      "url": "/?mode=time",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
